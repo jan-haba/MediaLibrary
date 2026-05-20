@@ -1,15 +1,13 @@
 package module;
 
-import java.time.LocalDateTime;
-
-public class Serial extends Module {
+public class Serial extends Media {
     private String creator;
     private int totalSeasons;
     private int totalEpisodes;
     private String status;
 
-    public Serial(int id, String title, String genre, int year, int rating, String imageUrl, String description, boolean favorite, LocalDateTime dateAdded, String creator, int totalSeasons, int totalEpisodes, String status) {
-        super(id, title, genre, year, rating, imageUrl, description);
+    public Serial(int id, String title, String genre, int year, String imageUrl, String description, String creator, int totalSeasons, int totalEpisodes, String status) {
+        super(id, title, genre, year, imageUrl, description);
         this.creator = creator;
         this.totalSeasons = totalSeasons;
         this.totalEpisodes = totalEpisodes;

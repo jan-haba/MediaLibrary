@@ -2,7 +2,7 @@ package module;
 
 import java.time.LocalDateTime;
 
-public class Module {
+public class Media {
     private int id;
     private String title;
     private String genre;
@@ -13,12 +13,11 @@ public class Module {
     private boolean favorite;
     private LocalDateTime dateAdded;
 
-    public Module(int id, String title, String genre, int year, int rating, String imageUrl, String description) {
+    public Media(int id, String title, String genre, int year, String imageUrl, String description) {
         this.id = id;
         this.title = title;
         this.genre = genre;
         this.year = year;
-        this.rating = rating;
         this.imageUrl = imageUrl;
         this.description = description;
         this.favorite = false;

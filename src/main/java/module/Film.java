@@ -1,16 +1,14 @@
 package module;
 
-import java.time.LocalDateTime;
-
-public class Film extends Module {
+public class Film extends Media {
     private String director;
     private int duration;
     private String mainStudio;
 
-    public Film(int id, String title, String genre, int year, int rating, String imageUrl, String description, boolean favorite, LocalDateTime dateAdded, String director, int duration, String mainStudio) {
-        super(id, title, genre, year, rating, imageUrl, description);
-        this.director = director;
+    public Film(int id, String title, String genre, int year, String imageUrl, String description, int duration, String director, String mainStudio) {
+        super(id, title, genre, year, imageUrl, description);
         this.duration = duration;
+        this.director = director;
         this.mainStudio = mainStudio;
     }
 

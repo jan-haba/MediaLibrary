@@ -1,16 +1,14 @@
 package module;
 
-import java.time.LocalDateTime;
-
-public class Music extends Module {
+public class Music extends Media {
     private String artist;
     private String recordLabel;
     private int totalTracks;
     private int durationSeconds;
     private MusicType releaseType;
 
-    public Music(int id, String title, String genre, int year, int rating, String imageUrl, String description, boolean favorite, LocalDateTime dateAdded, String artist, String recordLabel, int totalTracks, int durationSeconds, MusicType releaseType) {
-        super(id, title, genre, year, rating, imageUrl, description);
+    public Music(int id, String title, String genre, int year, String imageUrl, String description, String artist, String recordLabel, int totalTracks, int durationSeconds, MusicType releaseType) {
+        super(id, title, genre, year, imageUrl, description);
         this.artist = artist;
         this.recordLabel = recordLabel;
         this.totalTracks = totalTracks;

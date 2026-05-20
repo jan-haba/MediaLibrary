@@ -1,15 +1,13 @@
 package module;
 
-import java.time.LocalDateTime;
-
-public class Book extends Module{
+public class Book extends Media {
     private String author;
     private int pageCount;
     private String publisher;
     private String isbn;
 
-    public Book(int id, String title, String genre, int year, int rating, String imageUrl, String description, boolean favorite, LocalDateTime dateAdded, String author, int pageCount, String publisher, String isbn) {
-        super(id, title, genre, year, rating, imageUrl, description);
+    public Book(int id, String title, String genre, int year, String imageUrl, String description, String author, int pageCount, String publisher, String isbn) {
+        super(id, title, genre, year, imageUrl, description);
         this.author = author;
         this.pageCount = pageCount;
         this.publisher = publisher;
