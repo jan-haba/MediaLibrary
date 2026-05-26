@@ -1,5 +1,13 @@
 package module;
 
+/**
+ * Represents a TV series or serial media item in the library.
+ * <p>
+ * This class extends the base Media class by adding specific attributes
+ * for television shows, such as the creator, total seasons, total episodes,
+ * and its current production status.
+ * </p>
+ */
 public class Serial extends Media {
     private String creator;
     private int totalSeasons;

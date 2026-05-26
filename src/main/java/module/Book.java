@@ -1,5 +1,13 @@
 package module;
 
+/**
+ * Represents a physical or digital literary book item within the library database.
+ * <p>
+ * This class extends the core Media parent structure by appending specific properties
+ * unique to print media, including the primary author, the total page count, the
+ * publishing company, and the standard International Standard Book Number (ISBN).
+ * </p>
+ */
 public class Book extends Media {
     private String author;
     private int pageCount;

@@ -1,5 +1,13 @@
 package module;
 
+/**
+ * Represents a musical release, such as an album, single, or EP, in the library.
+ * <p>
+ * This class extends the base Media class by adding music-specific properties
+ * including the artist name, record label, total track count, total playback
+ * duration in seconds, and the type of release.
+ * </p>
+ */
 public class Music extends Media {
     private String artist;
     private String recordLabel;

@@ -2,6 +2,14 @@ package module;
 
 import java.time.LocalDateTime;
 
+/**
+ * The core base class representing a generic media item within the library.
+ * <p>
+ * This abstract-style parent class encapsulates shared data fields common to all media
+ * types, such as titles, genres, publication dates, images, summaries, user ratings,
+ * and tracking metadata like favorite flags and creation timestamps.
+ * </p>
+ */
 public class Media {
     private int id;
     private String title;
@@ -22,6 +30,21 @@ public class Media {
         this.description = description;
         this.favorite = false;
         this.dateAdded = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "Media{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", genre='" + genre + '\'' +
+                ", year=" + year +
+                ", rating=" + rating +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", description='" + description + '\'' +
+                ", favorite=" + favorite +
+                ", dateAdded=" + dateAdded +
+                '}';
     }
 
     public int getId() {
