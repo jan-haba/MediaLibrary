@@ -26,8 +26,8 @@ public class Main extends Application {
 
             Parent root = FXMLLoader.load(getClass().getResource("/org/example/main_window.fxml"));
             primaryStage.setTitle("Media Library");
-            primaryStage.setScene(new Scene(root, 600, 400));
-            primaryStage.setResizable(false);
+            primaryStage.setScene(new Scene(root));
+            primaryStage.setResizable(true);
             primaryStage.show();
 
             MediaLibrary.saveToFile();

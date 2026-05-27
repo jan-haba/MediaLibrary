@@ -79,7 +79,7 @@ public class AddController {
             imageUrl = "https://example.com/default-poster.jpg";
 
             if (apiData != null) {
-                System.out.println("✅ DATA DORAZILA: Open Library vrátila platný objekt!");
+                System.out.println("✅ DATA DORAZILA: Google Books vrátil platný objekt!");
                 cleanTitle = apiData.optString("title", cleanTitle);
 
                 if (apiData.has("categories")) {
@@ -93,8 +93,6 @@ public class AddController {
                 year = parseYear(publishedDate);
                 pageCount = apiData.optInt("pageCount", pageCount);
                 description = apiData.optString("description", description);
-
-                // TADY ČTEME OPRAVENÝ KLÍČ PRO OBÁLKU
                 imageUrl = apiData.optString("thumbnailUrl", imageUrl);
 
             } else {

@@ -1,63 +1,102 @@
 package org.example;
 
-import javafx.event.ActionEvent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import module.Media;
-import module.Film;
 import module.Book;
-import module.Serial;
+import module.Film;
+import module.Media;
 import module.Music;
+import module.Serial;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StatsController {
 
-    @FXML private Label movieHoursLabel;
-    @FXML private Label episodesLabel;
-    @FXML private Label pagesLabel;
-    @FXML private Label musicTracksLabel;
+    @FXML
+    private Label totalItemsLabel;
 
+    @FXML
+    private Label totalPagesLabel;
+
+    @FXML
+    private Label totalWatchTimeLabel;
+
+    @FXML
+    private PieChart typePieChart;
+
+    @FXML
+    private BarChart<String, Number> genreBarChart;
+
+    @FXML
+    private CategoryAxis xAxis;
 
     @FXML
     public void initialize() {
-        calculateAndDisplayStatistics();
-    }
+        System.out.println("📊 Generuji vizuální grafy a statistiky knihovny...");
 
+        List<Media> mediaList = MediaLibrary.getMediaList();
 
-    private void calculateAndDisplayStatistics() {
-        List<Media> currentList = MediaLibrary.getMediaList();
+        int totalItems = mediaList.size();
+        int totalPages = 0;
+        int totalWatchTime = 0;
 
-        int totalMovieMinutes = 0;
-        int totalEpisodes = 0;
-        int totalBookPages = 0;
-        int totalMusicTracks = 0;
+        int bookCount = 0;
+        int filmCount = 0;
+        int serialCount = 0;
+        int musicCount = 0;
 
-        for (Media media : currentList) {
-            if (media instanceof Film) {
-                totalMovieMinutes += ((Film) media).getDuration();
-            } else if (media instanceof Book) {
-                totalBookPages += ((Book) media).getPageCount();
-            } else if (media instanceof Serial) {
-                totalEpisodes += ((Serial) media).getTotalEpisodes();
-            } else if (media instanceof Music) {
-                totalMusicTracks += ((Music) media).getTotalTracks();
+        Map<String, Integer> genreMap = new HashMap<>();
+
+        for (Media m : mediaList) {
+            String genre = m.getGenre();
+            if (genre == null || genre.isEmpty()) {
+                genre = "Unknown";
+            }
+            genreMap.put(genre, genreMap.getOrDefault(genre, 0) + 1);
+
+            if (m instanceof Book) {
+                bookCount++;
+                totalPages += ((Book) m).getPageCount();
+            } else if (m instanceof Film) {
+                filmCount++;
+                totalWatchTime += ((Film) m).getDuration();
+            } else if (m instanceof Serial) {
+                serialCount++;
+            } else if (m instanceof Music) {
+                musicCount++;
             }
         }
 
-        int hours = totalMovieMinutes / 60;
-        int minutes = totalMovieMinutes % 60;
-        String formattedWatchTime = hours + " hrs " + minutes + " mins";
+        totalItemsLabel.setText(String.valueOf(totalItems));
+        totalPagesLabel.setText(String.format("%,d p.", totalPages));
+        totalWatchTimeLabel.setText(String.format("%,d min", totalWatchTime));
 
-        movieHoursLabel.setText("Total Movie Hours: " + formattedWatchTime);
-        episodesLabel.setText("Total Series Episodes Watched: " + totalEpisodes);
-        pagesLabel.setText("Total Book Pages Read: " + totalBookPages);
-        musicTracksLabel.setText("Total Music Tracks: " + totalMusicTracks);
-    }
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        if (bookCount > 0) pieChartData.add(new PieChart.Data("Books (" + bookCount + ")", bookCount));
+        if (filmCount > 0) pieChartData.add(new PieChart.Data("Movies (" + filmCount + ")", filmCount));
+        if (serialCount > 0) pieChartData.add(new PieChart.Data("TV Shows (" + serialCount + ")", serialCount));
+        if (musicCount > 0) pieChartData.add(new PieChart.Data("Music (" + musicCount + ")", musicCount));
 
+        typePieChart.setData(pieChartData);
 
-    @FXML
-    void onBackClick(ActionEvent event) {
-        WindowManager.changeWindow(event, "main_window.fxml", "My Personal Media Library");
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        genreMap.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .limit(6)
+                .forEach(entry -> {
+                    series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+                });
+
+        genreBarChart.getData().clear();
+        genreBarChart.getData().add(series);
     }
 }
