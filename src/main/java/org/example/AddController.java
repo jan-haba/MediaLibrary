@@ -75,9 +75,11 @@ public class AddController {
 
             String author = "Neznámý autor";
             int pageCount = 250;
+            genre = "Literatura";
+            imageUrl = "https://example.com/default-poster.jpg";
 
             if (apiData != null) {
-                System.out.println("✅ DATA DORAZILA: Google Books vrátil platný objekt!");
+                System.out.println("✅ DATA DORAZILA: Open Library vrátila platný objekt!");
                 cleanTitle = apiData.optString("title", cleanTitle);
 
                 if (apiData.has("categories")) {
@@ -86,14 +88,15 @@ public class AddController {
                 if (apiData.has("authors")) {
                     author = apiData.getJSONArray("authors").optString(0, author);
                 }
+
                 String publishedDate = apiData.optString("publishedDate", "2026");
                 year = parseYear(publishedDate);
                 pageCount = apiData.optInt("pageCount", pageCount);
                 description = apiData.optString("description", description);
 
-                if (apiData.has("imageLinks")) {
-                    imageUrl = apiData.getJSONObject("imageLinks").optString("thumbnail", imageUrl);
-                }
+                // TADY ČTEME OPRAVENÝ KLÍČ PRO OBÁLKU
+                imageUrl = apiData.optString("thumbnailUrl", imageUrl);
+
             } else {
                 System.out.println("❌ DATA NEDORAZILA: apiData je stále null!");
             }
@@ -121,7 +124,27 @@ public class AddController {
         }
 
         else if (selectedType.contains("MUSIC")) {
-            newMediaItem = new Music(newId, cleanTitle, "Music", year, imageUrl, description, "Various Artists", "Record Label", 10, 2400, MusicType.ALBUM);
+            System.out.println("🔍 VYHLEDÁVÁNÍ HUDBY - Posílám do API plný název: " + cleanTitle);
+
+            JSONObject musicData = ApiService.fetchMusic(cleanTitle);
+
+            String artist = "Various Artists";
+            String recordLabel = "Record Label";
+            genre = "Music";
+
+            if (musicData != null) {
+                System.out.println("✅ DATA DORAZILA: Internet Archive vrátil hudební objekt!");
+                cleanTitle = musicData.optString("title", cleanTitle);
+                artist = musicData.optString("artist", artist);
+                genre = musicData.optString("genre", genre);
+                year = parseYear(musicData.optString("year", "2026"));
+                description = musicData.optString("description", description);
+                recordLabel = musicData.optString("publisher", recordLabel);
+            } else {
+                System.out.println("❌ DATA NEDORAZILA: Hudební apiData je null!");
+            }
+
+            newMediaItem = new Music(newId, cleanTitle, genre, year, imageUrl, description, artist, recordLabel, 10, 2400, MusicType.ALBUM);
         }
 
         if (newMediaItem != null) {

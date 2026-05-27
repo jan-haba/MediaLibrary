@@ -91,30 +91,79 @@ public class ApiService {
     }
 
 
-    public static int fetchExactEpisodeCount(String title, int totalSeasons) {
-        int totalEpisodes = 0;
-        try {
-            String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
-            for (int i = 1; i <= totalSeasons; i++) {
-                String urlString = "https://www.omdbapi.com/?apikey=" + OMDB_API_KEY + "&t=" + encodedTitle + "&Season=" + i;
-                String response = makeHttpRequest(urlString);
 
-                if (response != null) {
-                    JSONObject json = new JSONObject(response);
-                    if (json.has("Episodes")) {
-                        totalEpisodes += json.getJSONArray("Episodes").length();
-                    }
-                }
-            }
-            return totalEpisodes;
-        } catch (Exception e) {
-            System.out.println("⚠️ Failed gathering exact episode subcounts: " + e.getMessage());
-        }
-        return totalSeasons * 8;
-    }
 
 
     public static JSONObject fetchBook(String title) {
+        try {
+            String shortTitle = title;
+            if (title.contains(":")) {
+                shortTitle = title.split(":")[0].trim();
+            }
+
+            String encodedTitle = URLEncoder.encode(shortTitle, StandardCharsets.UTF_8);
+            String urlString = "https://openlibrary.org/search.json?title=" + encodedTitle + "&limit=1";
+
+            System.out.println("📚 [Open Library] Vyhledávám knihu: " + shortTitle);
+            String response = makeHttpRequest(urlString);
+
+            if (response != null) {
+                JSONObject responseJson = new JSONObject(response);
+                int numFound = responseJson.optInt("num_found", 0);
+
+                if (numFound > 0) {
+                    JSONObject bookDoc = responseJson.getJSONArray("docs").getJSONObject(0);
+                    JSONObject volumeInfo = new JSONObject();
+
+                    volumeInfo.put("title", bookDoc.optString("title", title));
+
+                    String cleanAuthor = "Neznámý autor";
+                    if (bookDoc.has("author_name")) {
+                        cleanAuthor = bookDoc.getJSONArray("author_name").optString(0, "Neznámý autor");
+                    }
+                    JSONArray authors = new JSONArray();
+                    authors.put(cleanAuthor);
+                    volumeInfo.put("authors", authors);
+
+                    int firstPublishYear = bookDoc.optInt("first_publish_year", 2026);
+                    volumeInfo.put("publishedDate", String.valueOf(firstPublishYear));
+
+                    volumeInfo.put("description", "No description available in search catalog.");
+
+                    int pageCount = 250;
+                    if (bookDoc.has("number_of_pages_median")) {
+                        pageCount = bookDoc.getInt("number_of_pages_median");
+                    } else if (bookDoc.has("edition_count")) {
+                        pageCount = 150 + (bookDoc.optInt("edition_count", 1) * 5); // drobný odhad podle počtu edic
+                        if (pageCount > 600) pageCount = 350; // strop pro odhad
+                    }
+                    volumeInfo.put("pageCount", pageCount);
+
+                    String cleanGenre = "Literatura";
+                    if (bookDoc.has("subject")) {
+                        String rawSubj = bookDoc.getJSONArray("subject").optString(0, "");
+                        if (!rawSubj.isEmpty()) {
+                            cleanGenre = rawSubj.substring(0, 1).toUpperCase() + rawSubj.substring(1).toLowerCase();
+                        }
+                    }
+                    JSONArray categories = new JSONArray();
+                    categories.put(cleanGenre);
+                    volumeInfo.put("categories", categories);
+
+                    String coverUrl = "https://example.com/default-poster.jpg";
+                    int coverId = bookDoc.optInt("cover_i", -1);
+                    if (coverId != -1) {
+                        coverUrl = "https://covers.openlibrary.org/b/id/" + coverId + "-L.jpg";
+                    }
+                    volumeInfo.put("thumbnailUrl", coverUrl);
+
+                    return volumeInfo;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("🚨 [Open Library] Chyba při stahování knihy: " + e.getMessage());
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -126,8 +175,8 @@ public class ApiService {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);
-        conn.setReadTimeout(5000);
+        conn.setConnectTimeout(15000);
+        conn.setReadTimeout(15000);
 
         int status = conn.getResponseCode();
         if (status == 200) {
