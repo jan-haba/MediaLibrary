@@ -1,0 +1,4 @@
+BOOK;1;Harry Potter and the Philosopher's Stone;Literatura;1997;https://covers.openlibrary.org/b/id/15155833-L.jpg;No description available in search catalog.;J. K. Rowling;350;Globální nakladatel;000-00-000;0;false;2026-05-27T15:11:02.101296700
+BOOK;2;The Lord of the Rings The Fellowship of the Ring;Literatura;2026;https://example.com/default-poster.jpg;No description available.;Neznámý autor;250;Globální nakladatel;000-00-000;0;false;2026-05-27T15:14:24.747682900
+BOOK;3;Lord of the rings 1;Literatura;2026;https://example.com/default-poster.jpg;No description available.;Neznámý autor;250;Globální nakladatel;000-00-000;0;false;2026-05-27T15:16:46.126378700
+BOOK;4;Harry Potter and the Chamber of Secrets;Literatura;2026;https://example.com/default-poster.jpg;No description available.;Neznámý autor;250;Globální nakladatel;000-00-000;0;false;2026-05-27T17:55:31.249040900
