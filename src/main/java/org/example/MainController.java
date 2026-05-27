@@ -1,9 +1,12 @@
 package org.example;
 
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -74,8 +77,14 @@ public class MainController {
             if (shortTitle.length() > 18) {
                 shortTitle = shortTitle.substring(0, 15) + "...";
             }
+
             Label titleLabel = new Label(shortTitle);
             titleLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px;");
+
+            if (item.isFavorite()) {
+                titleLabel.setText("❤️ " + shortTitle);
+                titleLabel.setStyle("-fx-text-fill: #ff4757; -fx-font-weight: bold; -fx-font-size: 11px;");
+            }
 
             card.getChildren().addAll(imageView, titleLabel);
             card.setOnMouseClicked(event -> showDetailWindow(item));
@@ -99,6 +108,7 @@ public class MainController {
         refreshGrid(filtered);
     }
 
+    @SuppressWarnings("unchecked")
     private void showDetailWindow(Media item) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/detail_window.fxml"));
@@ -112,6 +122,9 @@ public class MainController {
             Label yearLabel = (Label) root.lookup("#yearLabel");
             Label extraLabel = (Label) root.lookup("#extraLabel");
             TextArea descriptionArea = (TextArea) root.lookup("#descriptionArea");
+
+            Button favoriteButton = (Button) root.lookup("#favoriteButton");
+            ComboBox<String> ratingComboBox = (ComboBox<String>) root.lookup("#ratingComboBox");
 
             titleLabel.setText(item.getTitle());
             genreLabel.setText("Genre: " + item.getGenre());
@@ -142,6 +155,37 @@ public class MainController {
                 extraLabel.setText("Tracks: " + ((Music) item).getTotalTracks());
             }
 
+            if (item.isFavorite()) {
+                favoriteButton.setText("❤️ Favorite");
+                favoriteButton.setStyle("-fx-background-color: #ff4757; -fx-text-fill: white; -fx-background-radius: 15; -fx-font-weight: bold;");
+            }
+
+            favoriteButton.setOnAction(e -> {
+                if (item.isFavorite()) {
+                    item.setFavorite(false);
+                    favoriteButton.setText("🖤 Add to Favorites");
+                    favoriteButton.setStyle("-fx-background-color: #2a2a2a; -fx-text-fill: #ff4757; -fx-background-radius: 15; -fx-font-weight: bold;");
+                } else {
+                    item.setFavorite(true);
+                    favoriteButton.setText("❤️ Favorite");
+                    favoriteButton.setStyle("-fx-background-color: #ff4757; -fx-text-fill: white; -fx-background-radius: 15; -fx-font-weight: bold;");
+                }
+                MediaLibrary.saveToFile();
+                refreshGrid(MediaLibrary.getMediaList());
+            });
+
+            ratingComboBox.setItems(FXCollections.observableArrayList(
+                    "Not Rated", "⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"
+            ));
+            ratingComboBox.getSelectionModel().select(item.getRating());
+
+            ratingComboBox.setOnAction(e -> {
+                int selectedIndex = ratingComboBox.getSelectionModel().getSelectedIndex();
+                item.setRating(selectedIndex);
+                MediaLibrary.saveToFile();
+            });
+
+            // Zobrazení okna
             Stage stage = new Stage();
             stage.setTitle("Media Detail - " + item.getTitle());
             stage.setScene(new Scene(root));
@@ -166,10 +210,9 @@ public class MainController {
             stage.setTitle("Add New Media Item");
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
-
             stage.showAndWait();
 
-            System.out.println("🔄 Formulář zavřen, překresluji hlavní mřížku s novými daty...");
+            System.out.println("🔄 Formulář zavřen, překresluji hlavní mřížku...");
             refreshGrid(MediaLibrary.getMediaList());
         } catch (IOException e) {
             System.out.println("🚨 Nelze otevřít okno pro přidání: " + e.getMessage());
