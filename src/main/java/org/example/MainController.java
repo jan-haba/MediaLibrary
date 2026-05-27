@@ -39,8 +39,7 @@ public class MainController {
     public void initialize() {
         System.out.println("🖼️ Inicializace hlavního menu s dlaždicemi plakátů...");
 
-
-        mediaTilePane.prefWidthProperty().bind(scrollPane.widthProperty().subtract(20));
+        mediaTilePane.prefWidthProperty().bind(scrollPane.widthProperty().subtract(25));
 
         refreshGrid(MediaLibrary.getMediaList());
 
@@ -61,12 +60,11 @@ public class MainController {
             imageView.setFitWidth(130);
             imageView.setFitHeight(180);
             imageView.setPreserveRatio(false);
-
             imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 4);");
 
             String url = item.getImageUrl();
             if (url == null || url.isEmpty() || url.contains("example.com")) {
-                url = "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=150&auto=format&fit=crop&q=60"; // pěkná univerzální kniha/film z fotobanky
+                url = "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=150&auto=format&fit=crop&q=60";
             }
 
             Image img = new Image(url, 130, 180, false, true, true);
@@ -80,7 +78,6 @@ public class MainController {
             titleLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px;");
 
             card.getChildren().addAll(imageView, titleLabel);
-
             card.setOnMouseClicked(event -> showDetailWindow(item));
 
             mediaTilePane.getChildren().add(card);
@@ -169,11 +166,14 @@ public class MainController {
             stage.setTitle("Add New Media Item");
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
+
             stage.showAndWait();
 
+            System.out.println("🔄 Formulář zavřen, překresluji hlavní mřížku s novými daty...");
             refreshGrid(MediaLibrary.getMediaList());
         } catch (IOException e) {
             System.out.println("🚨 Nelze otevřít okno pro přidání: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -5,18 +5,50 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AddController">
+<AnchorPane prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: #121214;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AddController">
     <children>
-        <Label layoutX="50.0" layoutY="40.0" text="Add New Media to Library">
+        <Label layoutX="40.0" layoutY="30.0" text="✨ Add New Media to Library" textFill="WHITE" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="30.0">
             <font>
-                <Font name="System Bold" size="20.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <ComboBox fx:id="typeComboBox" layoutX="50.0" layoutY="100.0" prefWidth="150.0" promptText="Select Type" />
-        <TextField fx:id="titleField" layoutX="50.0" layoutY="150.0" prefWidth="400.0" promptText="Enter Title (AI will fix typos)" />
-        <Button layoutX="50.0" layoutY="300.0" mnemonicParsing="false" onAction="#onSaveClick" prefHeight="30.0" prefWidth="100.0" text="Save" />
-        <Button layoutX="170.0" layoutY="300.0" mnemonicParsing="false" onAction="#onBackClick" prefHeight="30.0" prefWidth="100.0" text="Back" />
+
+        <VBox layoutX="40.0" layoutY="90.0" prefWidth="520.0" spacing="15.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="90.0">
+            <children>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Select Media Type" textFill="#aaaaaa">
+                            <font>
+                                <Font name="System Bold" size="12.0" />
+                            </font>
+                        </Label>
+                        <ComboBox fx:id="typeComboBox" prefHeight="38.0" prefWidth="520.0" promptText="Choose type..." style="-fx-background-color: #1e1e24; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 0 5 0 5;" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Media Title / Search Query" textFill="#aaaaaa">
+                            <font>
+                                <Font name="System Bold" size="12.0" />
+                            </font>
+                        </Label>
+                        <TextField fx:id="titleField" prefHeight="38.0" promptText="e.g. hARRY POTTER 1, Matrix, Inception..." style="-fx-background-color: #1e1e24; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 0 10 0 10;" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <Label fx:id="statusLabel" alignment="CENTER" layoutX="40.0" layoutY="340.0" prefWidth="520.0" text="Fill the form and press Save." textFill="#888888" wrapText="true" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0">
+            <font>
+                <Font name="System Italic" size="13.0" />
+            </font>
+        </Label>
+
+        <Button layoutX="40.0" layoutY="410.0" mnemonicParsing="false" onAction="#onSaveClick" prefHeight="45.0" prefWidth="240.0" style="-fx-background-radius: 25; -fx-background-color: #4361ee; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="🚀 Smart Save (with AI)" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="40.0" />
+        <Button layoutX="320.0" layoutY="410.0" mnemonicParsing="false" onAction="#onBackClick" prefHeight="45.0" prefWidth="240.0" style="-fx-background-radius: 25; -fx-background-color: #2e2e38; -fx-text-fill: #aaaaaa; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="Cancel" AnchorPane.bottomAnchor="45.0" AnchorPane.rightAnchor="40.0" />
     </children>
 </AnchorPane>

@@ -16,7 +16,7 @@
             </content>
         </ScrollPane>
 
-        <Button layoutX="40.0" layoutY="535.0" mnemonicParsing="false" onAction="#onAddWindowClick" prefHeight="40.0" prefWidth="160.0" style="-fx-background-radius: 20; -fx-background-color: #4361ee; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="➕ Add New Item" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="40.0" />
+        <Button layoutX="40.0" layoutY="535.0" mnemonicParsing="false" onAction="#onAddWindowClick" prefHeight="40.0" prefWidth="160.0" style="-fx-background-radius: 20; -fx-background-color: #4361ee; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"  text="➕ Add New Item" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="40.0" />
         <Button layoutX="600.0" layoutY="535.0" mnemonicParsing="false" onAction="#onStatsWindowClick" prefHeight="40.0" prefWidth="160.0" style="-fx-background-radius: 20; -fx-background-color: #3f37c9; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="📊 View Stats" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="40.0" />
     </children>
 </AnchorPane>

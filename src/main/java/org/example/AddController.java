@@ -1,10 +1,11 @@
 package org.example;
 
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import org.json.JSONObject;
 import module.Media;
 import module.Film;
@@ -19,6 +20,7 @@ public class AddController {
 
     @FXML private ComboBox<String> typeComboBox;
     @FXML private TextField titleField;
+    @FXML private Label statusLabel;
 
     @FXML
     public void initialize() {
@@ -28,20 +30,39 @@ public class AddController {
                 "📺 SERIES",
                 "🎵 MUSIC"
         ));
+        if (statusLabel != null) {
+            statusLabel.setText("Ready. Enter title and let Gemini AI do the magic!");
+        }
     }
 
     @FXML
-    void onSaveClick(ActionEvent event) {
+    void onSaveClick() {
         String selectedType = typeComboBox.getValue();
         String rawTitle = titleField.getText();
 
         if (selectedType == null || rawTitle == null || rawTitle.trim().isEmpty()) {
             System.out.println("⚠️ Error: Form incomplete!");
+            if (statusLabel != null) {
+                statusLabel.setText("❌ Error: Please select type and enter a title!");
+                statusLabel.setStyle("-fx-text-fill: #f72585;");
+            }
             return;
+        }
+
+        rawTitle = rawTitle.trim();
+
+        if (statusLabel != null) {
+            statusLabel.setText("🤖 Gemini AI is cleaning and organizing the title...");
+            statusLabel.setStyle("-fx-text-fill: #4cc9f0;");
         }
 
         String cleanTitle = ApiService.cleanTitleWithGemini(rawTitle);
         int newId = generateUniqueId();
+
+        if (statusLabel != null) {
+            statusLabel.setText("🌐 Querying global cloud databases for artwork & metadata...");
+            statusLabel.setStyle("-fx-text-fill: #4361ee;");
+        }
 
         String genre = "General";
         int year = 2026;
@@ -79,7 +100,7 @@ public class AddController {
             imageUrl = "https://example.com/default-poster.jpg";
 
             if (apiData != null) {
-                System.out.println("✅ DATA DORAZILA: Google Books vrátil platný objekt!");
+                System.out.println("✅ DATA DORAZILA: Knižní API vrátilo platný objekt!");
                 cleanTitle = apiData.optString("title", cleanTitle);
 
                 if (apiData.has("categories")) {
@@ -148,7 +169,15 @@ public class AddController {
         if (newMediaItem != null) {
             MediaLibrary.addItem(newMediaItem);
             System.out.println("🚀 Smarter Item Saved: " + cleanTitle);
-            WindowManager.changeWindow(event, "main_window.fxml", "My Personal Media Library");
+
+            // Zavřeme toto dialogové okno formuláře
+            Stage stage = (Stage) titleField.getScene().getWindow();
+            stage.close();
+        } else {
+            if (statusLabel != null) {
+                statusLabel.setText("❌ Error: Failed to generate media asset.");
+                statusLabel.setStyle("-fx-text-fill: #f72585;");
+            }
         }
     }
 
@@ -186,7 +215,8 @@ public class AddController {
     }
 
     @FXML
-    void onBackClick(ActionEvent event) {
-        WindowManager.changeWindow(event, "main_window.fxml", "My Personal Media Library");
+    void onBackClick() {
+        Stage stage = (Stage) titleField.getScene().getWindow();
+        stage.close();
     }
 }
