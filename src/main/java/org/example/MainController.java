@@ -56,8 +56,11 @@ public class MainController {
 
         for (Media item : items) {
             VBox card = new VBox();
-            card.setSpacing(5);
+            card.setSpacing(8);
             card.setStyle("-fx-alignment: center; -fx-cursor: hand;");
+
+            javafx.scene.layout.StackPane imageContainer = new javafx.scene.layout.StackPane();
+            imageContainer.setStyle("-fx-alignment: top-right;");
 
             ImageView imageView = new ImageView();
             imageView.setFitWidth(130);
@@ -73,6 +76,23 @@ public class MainController {
             Image img = new Image(url, 130, 180, false, true, true);
             imageView.setImage(img);
 
+            imageContainer.getChildren().add(imageView);
+
+            if (item.isFavorite()) {
+                Label favTag = new Label("❤ FAV");
+                favTag.setStyle(
+                        "-fx-background-color: #ff4757;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-font-size: 10px;" +
+                                "-fx-padding: 3 7 3 7;" +
+                                "-fx-background-radius: 0 0 0 10;" + // Zaoblí pouze vnitřní spodní roh
+                                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 4, 0, 0, 0);"
+                );
+
+                imageContainer.getChildren().add(favTag);
+            }
+
             String shortTitle = item.getTitle();
             if (shortTitle.length() > 18) {
                 shortTitle = shortTitle.substring(0, 15) + "...";
@@ -81,12 +101,7 @@ public class MainController {
             Label titleLabel = new Label(shortTitle);
             titleLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px;");
 
-            if (item.isFavorite()) {
-                titleLabel.setText("❤️ " + shortTitle);
-                titleLabel.setStyle("-fx-text-fill: #ff4757; -fx-font-weight: bold; -fx-font-size: 11px;");
-            }
-
-            card.getChildren().addAll(imageView, titleLabel);
+            card.getChildren().addAll(imageContainer, titleLabel);
             card.setOnMouseClicked(event -> showDetailWindow(item));
 
             mediaTilePane.getChildren().add(card);
