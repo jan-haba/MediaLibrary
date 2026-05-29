@@ -1,0 +1,1 @@
+FILM;1;The Boys;Action, Comedy, Crime;2019;https://m.media-amazon.com/images/M/MV5BZjU4OWNiYzQtMzc1NS00NjZlLTgyYTctZWY4ZmEzMTkxYjA4XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg;A group of vigilantes set out to take down corrupt superheroes who abuse their superpowers.;60;N/A;Production Studio;0;false;2026-05-28T19:11:27.745124800
