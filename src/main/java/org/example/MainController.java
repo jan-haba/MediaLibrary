@@ -177,6 +177,8 @@ public class MainController {
             Button favoriteButton = (Button) root.lookup("#favoriteButton");
             ComboBox<String> ratingComboBox = (ComboBox<String>) root.lookup("#ratingComboBox");
 
+            Button deleteButton = (Button) root.lookup("#deleteButton");
+
             titleLabel.setText(item.getTitle());
             genreLabel.setText("Genre: " + item.getGenre());
             yearLabel.setText("Year: " + item.getYear());
@@ -237,6 +239,16 @@ public class MainController {
             });
 
             Stage stage = new Stage();
+
+            if (deleteButton != null) {
+                deleteButton.setOnAction(e -> {
+                    System.out.println("🗑️ Odstraňuji položku z knihovny: " + item.getTitle());
+                    MediaLibrary.removeItem(item);
+                    stage.close();
+                    refreshGrid(MediaLibrary.getMediaList());
+                });
+            }
+
             stage.setTitle("Media Detail - " + item.getTitle());
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);

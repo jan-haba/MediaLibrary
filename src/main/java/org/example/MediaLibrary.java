@@ -164,4 +164,14 @@ public class MediaLibrary {
             e.printStackTrace();
         }
     }
+    /**
+     * Removes a specified media item from the library collection and pushes
+     * the updated dataset status to the local text storage file.
+     *
+     * @param media the media item entity to be removed from the library
+     */
+    public static void removeItem(Media media) {
+        mediaList.remove(media);
+        saveToFile();
+    }
 }
