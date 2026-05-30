@@ -62,7 +62,6 @@ public class AddController {
         String selectedType = typeComboBox.getValue();
         String rawTitle = titleField.getText();
 
-        // Enforce structural field presence constraints prior to loading external web streams
         if (selectedType == null || rawTitle == null || rawTitle.trim().isEmpty()) {
             System.out.println("⚠️ Error: Form incomplete!");
             if (statusLabel != null) {
@@ -117,14 +116,19 @@ public class AddController {
 
             JSONObject apiData = ApiService.fetchBook(cleanTitle);
 
-            String author = "Neznámý autor";
+            String author = "Unknown Author";
             int pageCount = 250;
-            genre = "Literatura";
-            imageUrl = "https://example.com/default-poster.jpg";
+            String publisher = "Global Publisher";
+            String isbn = "000-00-000";
 
             if (apiData != null) {
                 System.out.println("✅ DATA DORAZILA: Knižní API vrátilo platný objekt!");
                 cleanTitle = apiData.optString("title", cleanTitle);
+                description = apiData.optString("description", description);
+                pageCount = apiData.optInt("pageCount", pageCount);
+                publisher = apiData.optString("publisher", publisher);
+                imageUrl = apiData.optString("imageUrl", imageUrl);
+                year = parseYear(apiData.optString("publishedDate", "2026"));
 
                 if (apiData.has("categories")) {
                     genre = apiData.getJSONArray("categories").optString(0, genre);
@@ -132,17 +136,13 @@ public class AddController {
                 if (apiData.has("authors")) {
                     author = apiData.getJSONArray("authors").optString(0, author);
                 }
-
-                String publishedDate = apiData.optString("publishedDate", "2026");
-                year = parseYear(publishedDate);
-                pageCount = apiData.optInt("pageCount", pageCount);
-                description = apiData.optString("description", description);
-                imageUrl = apiData.optString("thumbnailUrl", imageUrl);
-
+                if (apiData.has("industryIdentifiers")) {
+                    isbn = apiData.getJSONArray("industryIdentifiers").getJSONObject(0).optString("identifier", isbn);
+                }
             } else {
-                System.out.println("❌ DATA NEDORAZILA: apiData je stále null!");
+                System.out.println("❌ DATA NEDORAZILA: Používám výchozí hodnoty.");
             }
-            newMediaItem = new Book(newId, cleanTitle, genre, year, imageUrl, description, author, pageCount, "Globální nakladatel", "000-00-000");
+            newMediaItem = new Book(newId, cleanTitle, genre, year, imageUrl, description, author, pageCount, publisher, isbn);
         }
 
         else if (selectedType.contains("SERIES")) {
@@ -172,21 +172,30 @@ public class AddController {
 
             String artist = "Various Artists";
             String recordLabel = "Record Label";
-            genre = "Music";
+            int totalTracks = 10;
+            int durationSeconds = 2400;
+            MusicType releaseType = MusicType.ALBUM;
 
             if (musicData != null) {
-                System.out.println("✅ DATA DORAZILA: Internet Archive vrátil hudební objekt!");
+                System.out.println("✅ DATA DORAZILA: iTunes API vrátilo hudební objekt!");
                 cleanTitle = musicData.optString("title", cleanTitle);
                 artist = musicData.optString("artist", artist);
                 genre = musicData.optString("genre", genre);
-                year = parseYear(musicData.optString("year", "2026"));
+                year = musicData.optInt("year", 2026);
                 description = musicData.optString("description", description);
                 recordLabel = musicData.optString("publisher", recordLabel);
-            } else {
-                System.out.println("❌ DATA NEDORAZILA: Hudební apiData je null!");
+                totalTracks = musicData.optInt("totalTracks", totalTracks);
+                durationSeconds = musicData.optInt("durationSeconds", durationSeconds);
+                imageUrl = musicData.optString("imageUrl", imageUrl);
+
+                try {
+                    releaseType = MusicType.valueOf(musicData.optString("releaseType", "ALBUM"));
+                } catch (IllegalArgumentException e) {
+                    releaseType = MusicType.ALBUM;
+                }
             }
 
-            newMediaItem = new Music(newId, cleanTitle, genre, year, imageUrl, description, artist, recordLabel, 10, 2400, MusicType.ALBUM);
+            newMediaItem = new Music(newId, cleanTitle, genre, year, imageUrl, description, artist, recordLabel, totalTracks, durationSeconds, releaseType);
         }
 
         if (newMediaItem != null) {

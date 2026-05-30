@@ -22,9 +22,8 @@ public class ApiService {
 
 
     private static final String OMDB_API_KEY = "d94efde7";
-
-
     private static final String GEMINI_API_KEY = "AIzaSyD61-BVLy0YVPoDSRCGmY7Q7Swpogjc9HY";
+    private static final String GOOGLE_BOOKS_API_KEY = "AIzaSyBVcwS2HWpczMQjP-DGyrgIfdmKIYJxM4Y";
 
     /**
      * Sanitizes unstructured text inputs by processing them through Google's Gemini Generative AI model.
@@ -76,7 +75,7 @@ public class ApiService {
                         .getJSONArray("parts")
                         .getJSONObject(0)
                         .getString("text").trim();
-                aiTitle = aiTitle.replace("\"", "").replace("'", "");
+                aiTitle = aiTitle.replace("\"", "");
                 if (aiTitle.endsWith(".")) {
                     aiTitle = aiTitle.substring(0, aiTitle.length() - 1).trim();
                 }
@@ -122,30 +121,134 @@ public class ApiService {
     }
 
     /**
-     * Queries a remote literary cloud repository database to harvest structural metadata for book entries.
+     * Queries the public Google Books API to fetch rich metadata for literary items.
      * <p>
-     * <i>Note: This method is currently structured as a placeholder stub to be fully wired up with external
-     * target configurations in subsequent lifecycle iterations.</i>
+     * Encodes the title parameter and fires an outbound connection. Extracts critical
+     * parameters from the nested JSON response under the volumeInfo layout wrapper
+     * (authors, categories, pageCount, description, and high-quality image thumbnails).
      * </p>
      *
      * @param title the standardized text title query parsed to discover matched publication items
      * @return a mapped {@link JSONObject} containing literary metadata attributes, or {@code null} if unavailable
      */
     public static JSONObject fetchBook(String title) {
+        try {
+            String query = "intitle:\"" + title + "\"";
+            String encodedTitle = URLEncoder.encode(query, StandardCharsets.UTF_8);
+
+            String urlString = "https://www.googleapis.com/books/v1/volumes?q=" + encodedTitle + "&maxResults=1&printType=books&orderBy=relevance&key=" + GOOGLE_BOOKS_API_KEY;
+
+            System.out.println("🌐 Odesílám URL na Google Books (striktní intitle): " + urlString);
+
+            String response = makeHttpRequest(urlString);
+            if (response != null) {
+                JSONObject json = new JSONObject(response);
+                if (json.has("items") && !json.getJSONArray("items").isEmpty()) {
+                    JSONObject volumeInfo = json.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo");
+
+                    JSONObject parsedBook = new JSONObject();
+                    parsedBook.put("title", volumeInfo.optString("title", title));
+                    parsedBook.put("description", volumeInfo.optString("description", "No description available."));
+                    parsedBook.put("pageCount", volumeInfo.optInt("pageCount", 250));
+                    parsedBook.put("publisher", volumeInfo.optString("publisher", "Global Publisher"));
+                    parsedBook.put("publishedDate", volumeInfo.optString("publishedDate", "2026"));
+
+                    if (volumeInfo.has("categories")) {
+                        parsedBook.put("categories", volumeInfo.getJSONArray("categories"));
+                    }
+                    if (volumeInfo.has("authors")) {
+                        parsedBook.put("authors", volumeInfo.getJSONArray("authors"));
+                    }
+                    if (volumeInfo.has("industryIdentifiers")) {
+                        parsedBook.put("industryIdentifiers", volumeInfo.getJSONArray("industryIdentifiers"));
+                    }
+
+                    if (volumeInfo.has("imageLinks")) {
+                        String rawUrl = volumeInfo.getJSONObject("imageLinks").optString("thumbnail", "");
+                        if (rawUrl.startsWith("http://")) {
+                            rawUrl = rawUrl.replace("http://", "https://");
+                        }
+                        parsedBook.put("imageUrl", rawUrl);
+                    } else {
+                        parsedBook.put("imageUrl", "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300");
+                    }
+
+                    return parsedBook;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Google Books API Request failed: " + e.getMessage());
+        }
         return null;
     }
 
     /**
-     * Queries a global digital catalog index database to retrieve metadata records for music releases.
+     * Queries the public Apple iTunes Search API to retrieve structural metadata for musical items.
      * <p>
-     * <i>Note: This method is currently structured as a placeholder stub to be fully wired up with external
-     * target configurations in subsequent lifecycle iterations.</i>
+     * Executes a lookup target routing utilizing explicit media context properties. Automatically
+     * converts default audio thumbnails into upscale 600x600 high-resolution cover artwork references
+     * to populate active graphical layout components cleanly.
      * </p>
      *
      * @param title the cleaned title name query sequence parsed to discover matching musical assets
      * @return a mapped {@link JSONObject} containing music album and recording fields, or {@code null} if unavailable
      */
     public static JSONObject fetchMusic(String title) {
+        try {
+            String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
+            String urlString = "https://itunes.apple.com/search?term=" + encodedTitle + "&media=music&limit=1";
+
+            String response = makeHttpRequest(urlString);
+            if (response != null) {
+                JSONObject json = new JSONObject(response);
+                if (json.has("results") && !json.getJSONArray("results").isEmpty()) {
+                    JSONObject rawMusic = json.getJSONArray("results").getJSONObject(0);
+                    JSONObject parsedMusic = new JSONObject();
+
+
+                    String songTitle = rawMusic.optString("trackName", "");
+                    String albumTitle = rawMusic.optString("collectionName", "");
+
+                    if (!songTitle.isEmpty()) {
+                        parsedMusic.put("title", songTitle);
+                    } else {
+                        parsedMusic.put("title", !albumTitle.isEmpty() ? albumTitle : title);
+                    }
+
+                    parsedMusic.put("artist", rawMusic.optString("artistName", "Unknown Artist"));
+                    parsedMusic.put("genre", rawMusic.optString("primaryGenreName", "Music"));
+                    parsedMusic.put("publisher", rawMusic.optString("copyright", "Record Label"));
+
+                    String releaseDate = rawMusic.optString("releaseDate", "2026");
+                    parsedMusic.put("year", releaseDate.length() >= 4 ? releaseDate.substring(0, 4) : "2026");
+
+                    parsedMusic.put("totalTracks", rawMusic.optInt("trackCount", 1));
+                    parsedMusic.put("durationSeconds", rawMusic.optInt("trackTimeMillis", 240000) / 1000);
+
+
+                    String kind = rawMusic.optString("kind", "");
+                    int tracks = rawMusic.optInt("trackCount", 1);
+
+                    if ("song".equalsIgnoreCase(kind) || tracks <= 1) {
+                        parsedMusic.put("releaseType", "SINGLE");
+                        parsedMusic.put("description", "Single track release by " + parsedMusic.getString("artist") + (albumTitle.isEmpty() ? "" : " from album: " + albumTitle));
+                    } else {
+                        parsedMusic.put("releaseType", "ALBUM");
+                        parsedMusic.put("description", "Studio Album release by " + parsedMusic.getString("artist"));
+                    }
+
+                    String artworkUrl = rawMusic.optString("artworkUrl100", "");
+                    if (artworkUrl.contains("100x100bb.jpg")) {
+                        artworkUrl = artworkUrl.replace("100x100bb.jpg", "600x600bb.jpg");
+                    }
+                    parsedMusic.put("imageUrl", artworkUrl);
+
+                    return parsedMusic;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ iTunes Music API Request failed: " + e.getMessage());
+        }
         return null;
     }
 
