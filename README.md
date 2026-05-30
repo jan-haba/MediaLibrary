@@ -1,33 +1,38 @@
-# 🎬 Smart Media Library (JavaFX)
+# <center>🎬 Media Library </center>
 
-A modern desktop application for personal multimedia library management built using **JavaFX** and compiled via **Maven**. This application enables users to cleanly organize, search, filter, and rate various types of media, ranging from movies and TV shows to books and music albums. It integrates advanced cloud capabilities, including **Gemini AI** for title text cleaning and optimization, and the **OMDb API** for rich metadata and artwork retrieval.
+<center>Control your media</center>
+
+Smart Media Library is a responsive desktop simulation application built in Java 25 (JavaFX) where users run their own personalized cultural database. Through a clean, dark-themed user interface, users manage books, movies, series, and music, all while the underlying code actively demonstrates core Object-Oriented Programming principles and advanced cloud AI integrations.
+
+<center>[![Java Version](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)</center>
+---
+
+## ✨ Key Features & Mechanics
+
+| Feature | Description |
+| :--- | :--- |
+| **🖼️ Media Poster Grid** | Modern card-based user interface that automatically scrolls and dynamically wraps catalog tiles depending on window size changes. |
+| **🤖 Smart AI Search** | Type any messy title (e.g. `harry potter 1`) and let Google Gemini Pro clean it into the exact, official English asset name. |
+| **🌐 Cloud Metadata Lookup** | Automatically fetches high-quality artwork URLs, plot descriptions, directors, authors, and production years from global web repositories. |
+| **📊 Analytics Dashboard** | Monitor your library's real-time stats (PieChart for type distribution, BarChart for top 6 genres) and absolute page/watch time tracking data counters. |
+| **❤️ Custom Grading** | Rate entries using 1–5 stars, toggle favorite flags, and view the distinctive `❤ FAV` visual tag overlayed right on your main grid covers. |
+| **🗑️ Asset Deletion** | Cleanly remove items from your collection via a dedicated dynamic layout workflow that updates your persistent offline database in real-time. |
 
 ---
 
-## ✨ Key Features
+## ⚙️ Installation & Setup
 
-* **🖼️ Dynamic Grid Layout:** Text-based listings are replaced by a sleek tile-based layout using a `ScrollPane` and a `TilePane`. Media posters and covers load side-by-side, creating an immersive, Netflix-like digital catalog.
-* **🤖 Smart AI Cleanup (Gemini Pro):** Users do not need to worry about formatting or typos when adding new items (e.g., inputting `hARRY POTTER 1`). The embedded **Gemini 2.5 Flash** model standardizes the query to its official, exact title.
-* **🌐 Automated Cloud Metadata Import:** Following AI stabilization, the backend queries global databases (such as OMDb). It automatically fetches high-quality poster URLs, release years, genres, descriptions, directors, authors, or runtimes.
-* **⚡ Asynchronous Image Background Loading:** Media images stream in smoothly via daemon-backed threads. Populating dozens of media elements never blocks or freezes the application UI.
-* **📱 Fully Responsive Design:** Both the primary catalog and detail view windows dynamically adapt when resized. Tiles realign seamlessly to fill out your screen real estate upon window maximization.
-* **📊 Analytics Dashboard:** Real-time data statistics are visualized using rich JavaFX charting controls:
-    * *PieChart:* Displays percentage allocation across media categories (Books, Movies, Series, Music).
-    * *BarChart:* Visualizes the library's top 6 most prevalent genres.
-    * *Metric Cards:* Highlights overall asset aggregates, total compiled book pages read, and accumulated movie watch times.
-* **❤️ Custom Rating & Favorites:** Users can grade their content using 1–5 star ratings and toggle a favorite flag. Favorited items display a vibrant, overlayed `❤ FAV` label right over their cover card in the catalog grid.
-* **💾 Automatic Local Storage Sync:** Database adjustments, newly saved items, modified ratings, and favorite flags are instantly written back to a flat-file database schema (`data.txt`). No database setup is required, ensuring complete offline data persistence.
+### Prerequisites
+* **Java Development Kit (JDK) 25** or higher.
+* **Maven** package tool installed.
+* An IDE supporting modern Java syntax configurations (e.g., IntelliJ IDEA, Eclipse, or VS Code).
 
----
+### Execution Steps
+1. Clone this repository to your local machine:
+   ```bash
+   git clone [https://github.com/jan-haba/medialibrary](https://github.com/jan-haba/medialibrary)
+2. Open the directory module inside your preferred Java IDE.
 
-## 🛠️ Tech Stack & Dependencies
+3. Locate the AppLauncher.java file in your source folder hierarchy.
 
-* **Java 25** (OpenJDK)
-* **JavaFX 23.0.1** (Modules: `javafx-controls`, `javafx-fxml`)
-* **Maven** (Project compilation, package lifecycle management, and dependency tracking)
-* **JSON.org (20240303)** (Cloud API response serialization and mapping parsing)
-* **Google Gemini API** (AI-driven title string normalization)
-* **OMDb API** (Global cinematic registries search engine metadata synchronization)
-
----
-
+4. Run the main method entry block point to load the database cache and launch the primary application frame interface.
