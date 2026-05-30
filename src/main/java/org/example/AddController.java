@@ -16,12 +16,28 @@ import module.MusicType;
 
 import java.util.List;
 
+/**
+ * Controller class responsible for handling the interactive media creation wizard form.
+ * This class captures user input from the addition modal view, coordinates the data orchestration
+ * flow with the AI and cloud repository layer {@link ApiService} to sanitize title strings and extract
+ * rich metadata, maps the structural response into polymorphic subclass entities, and logs the items
+ * into the main collection file persistent database.
+ *
+ */
 public class AddController {
 
+
     @FXML private ComboBox<String> typeComboBox;
+
     @FXML private TextField titleField;
+
     @FXML private Label statusLabel;
 
+    /**
+     * Initializes the entry view state configuration settings automatically after FXML structural loading completes.
+     * Populates the selection dropdown components with supported categories paired with illustrative emojis
+     * and triggers the baseline interactive prompt text notification layout.
+     */
     @FXML
     public void initialize() {
         typeComboBox.setItems(FXCollections.observableArrayList(
@@ -35,11 +51,18 @@ public class AddController {
         }
     }
 
+    /**
+     * Orchestrates validation checks, initiates cloud serialization cycles, and logs newly created media items.
+     * Evaluates missing inputs defensively. If inputs pass validation, it pushes strings into the AI layer
+     * for cleaning, triggers HTTP request handlers targeting external databases to map attributes, maps data fields into
+     * concrete child records using polymorphic assignments, and invokes storage synchronization updates.
+     */
     @FXML
     void onSaveClick() {
         String selectedType = typeComboBox.getValue();
         String rawTitle = titleField.getText();
 
+        // Enforce structural field presence constraints prior to loading external web streams
         if (selectedType == null || rawTitle == null || rawTitle.trim().isEmpty()) {
             System.out.println("⚠️ Error: Form incomplete!");
             if (statusLabel != null) {
@@ -170,7 +193,6 @@ public class AddController {
             MediaLibrary.addItem(newMediaItem);
             System.out.println("🚀 Smarter Item Saved: " + cleanTitle);
 
-            // Zavřeme toto dialogové okno formuláře
             Stage stage = (Stage) titleField.getScene().getWindow();
             stage.close();
         } else {
@@ -181,6 +203,11 @@ public class AddController {
         }
     }
 
+    /**
+     * Inspects the global collections system list to generate a non-conflicting incremental primary key index.
+     *
+     * @return an integer representing the newly computed unique identification key
+     */
     private int generateUniqueId() {
         List<Media> currentList = MediaLibrary.getMediaList();
         int maxId = 0;
@@ -190,6 +217,12 @@ public class AddController {
         return maxId + 1;
     }
 
+    /**
+     * Parses the calendar year integer parameter from raw API text representations using defensive fallback routines.
+     *
+     * @param yearStr the raw textual representation extracted from the cloud API mapping response
+     * @return the extracted 4-digit calendar year integer, or 2026 as a fallback value
+     */
     private int parseYear(String yearStr) {
         try {
             return Integer.parseInt(yearStr.substring(0, 4));
@@ -198,6 +231,12 @@ public class AddController {
         }
     }
 
+    /**
+     * Sanitizes string indicators representing runtimes and maps them into numeric integer values.
+     *
+     * @param durationStr the raw duration text snippet parsed from the response structure (e.g., "142 min")
+     * @return an integer indicating the track duration scale mapped directly in minutes, or 120 as a fallback value
+     */
     private int parseDuration(String durationStr) {
         try {
             return Integer.parseInt(durationStr.replace(" min", "").trim());
@@ -206,6 +245,12 @@ public class AddController {
         }
     }
 
+    /**
+     * Converts unstructured numerical strings cleanly into usable primitives with safe exception boundaries.
+     *
+     * @param intStr the text metric sequence to parse safely
+     * @return the integer representation of the text parameter sequence, or 1 as a fallback value
+     */
     private int parseInteger(String intStr) {
         try {
             return Integer.parseInt(intStr.trim());
@@ -214,6 +259,9 @@ public class AddController {
         }
     }
 
+    /**
+     * Dismisses the active modal scene context window layout sequence without submitting changes.
+     */
     @FXML
     void onBackClick() {
         Stage stage = (Stage) titleField.getScene().getWindow();

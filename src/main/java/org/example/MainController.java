@@ -27,7 +27,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Controller class responsible for managing the primary multimedia catalog dashboard.
+ * This core user interface driver handles building the interactive image poster matrix,
+ * coordinates responsive window resizing properties, executes query string text filtering,
+ * and handles the instantiation layout cycles for sub-views such as addition forms, asset metrics,
+ * and media specification dialogs.
+ *
+ */
 public class MainController {
+
 
     @FXML
     private TextField searchField;
@@ -38,6 +47,11 @@ public class MainController {
     @FXML
     private TilePane mediaTilePane;
 
+    /**
+     * Initializes the dashboard environment configuration values instantly after layout resource bindings resolve.
+     * Binds resizable dimension subtraction listeners to automatically calculate content column wrapping margins
+     * and maps an interactive event observation listener chain monitoring lookahead inputs key by key.
+     */
     @FXML
     public void initialize() {
         System.out.println("🖼️ Inicializace hlavního menu s dlaždicemi plakátů...");
@@ -51,6 +65,14 @@ public class MainController {
         });
     }
 
+    /**
+     * Flushes the active catalog visualization and repopulates the dashboard tile matrix.
+     * Loops across arrays using runtime polymorphism to encapsulate specific layout properties.
+     * Implements image caching, dropshadow aesthetic modifiers, and conditional stack layer overlays
+     * to highlight asset entities flagged as user favorites.
+     *
+     * @param items the dataset collection consisting of {@link Media} entries to map into cards
+     */
     private void refreshGrid(List<Media> items) {
         mediaTilePane.getChildren().clear();
 
@@ -86,7 +108,7 @@ public class MainController {
                                 "-fx-font-weight: bold;" +
                                 "-fx-font-size: 10px;" +
                                 "-fx-padding: 3 7 3 7;" +
-                                "-fx-background-radius: 0 0 0 10;" + // Zaoblí pouze vnitřní spodní roh
+                                "-fx-background-radius: 0 0 0 10;" + // Round only the inner bottom corner
                                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 4, 0, 0, 0);"
                 );
 
@@ -108,6 +130,12 @@ public class MainController {
         }
     }
 
+    /**
+     * Screens out storage items failing to match lookahead strings typed inside the lookup input.
+     * Filters the global item stream comparing lower-case variants of media titles or genre classifications.
+     *
+     * @param query the textual search term parsed to restrict displayed catalog cards
+     */
     private void filterMedia(String query) {
         if (query == null || query.isEmpty()) {
             refreshGrid(MediaLibrary.getMediaList());
@@ -123,6 +151,14 @@ public class MainController {
         refreshGrid(filtered);
     }
 
+    /**
+     * Builds and launches the standalone focused view presentation window displaying deep asset attributes.
+     * Resolves structural UI mappings via reflection lookup injections. Evaluates data classifications using
+     * explicit inheritance instance routing, maps rating configurations, and provides interactive callback closures
+     * that commit modification events directly to the file persistence system.
+     *
+     * @param item the baseline concrete {@link Media} parent element selected to fill out the form
+     */
     @SuppressWarnings("unchecked")
     private void showDetailWindow(Media item) {
         try {
@@ -200,7 +236,6 @@ public class MainController {
                 MediaLibrary.saveToFile();
             });
 
-            // Zobrazení okna
             Stage stage = new Stage();
             stage.setTitle("Media Detail - " + item.getTitle());
             stage.setScene(new Scene(root));
@@ -216,6 +251,9 @@ public class MainController {
         }
     }
 
+    /**
+     * Spawns a synchronized blocking dialog layer containing the smart AI asset submission form fields.
+     */
     @FXML
     private void onAddWindowClick() {
         try {
@@ -235,6 +273,9 @@ public class MainController {
         }
     }
 
+    /**
+     * Spawns a floating auxiliary data metrics interface highlighting compiled statistical visual graphics.
+     */
     @FXML
     private void onStatsWindowClick() {
         try {

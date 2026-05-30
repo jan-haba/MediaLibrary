@@ -18,26 +18,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller class responsible for managing and visualizing library analytics.
+ * This class handles the logic for the statistics window, processing the global media list
+ * to compute quantitative summaries (such as total items, total book pages, and movie watch time)
+ * and populating rich JavaFX chart controls (PieChart and BarChart) to visualize media types
+ * and top genres in real-time.
+ */
 public class StatsController {
+
 
     @FXML
     private Label totalItemsLabel;
-
     @FXML
     private Label totalPagesLabel;
 
     @FXML
     private Label totalWatchTimeLabel;
-
     @FXML
     private PieChart typePieChart;
-
     @FXML
     private BarChart<String, Number> genreBarChart;
-
     @FXML
     private CategoryAxis xAxis;
 
+    /**
+     * Initializes the statistics controller automatically after its FXML root element has been loaded.
+     * <p>
+     * This method fetches the master media collection from {@link MediaLibrary}, iterates through it
+     * using polymorphism to aggregate specific numeric metrics, populates information summary cards,
+     * and compiles data sets required to render interactive analytics charts.
+     * </p>
+     */
     @FXML
     public void initialize() {
         System.out.println("📊 Generuji vizuální grafy a statistiky knihovny...");

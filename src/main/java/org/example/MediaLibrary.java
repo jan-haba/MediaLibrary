@@ -11,10 +11,24 @@ import module.Music;
 import module.Serial;
 import module.MusicType;
 
+/**
+ * Data management and persistence layer responsible for storage operations.
+ * This utility class maintains the master in-memory collection of all media records
+ * and handles plain-text file serialization/deserialization. It formats and writes
+ * objects into a semi-colon-separated structured data file, and reconstructs concrete subclass
+ * instances during initialization.
+ */
 public class MediaLibrary {
+
+
     private static final List<Media> mediaList = new ArrayList<>();
     private static final String DATA_FILE = "data.txt";
 
+    /**
+     * Appends a newly created media asset to the list and commits changes to the file.
+     *
+     * @param newMedia the concrete subclass entity implementing {@link Media} to be saved
+     */
     public static void addItem(Media newMedia) {
         mediaList.add(newMedia);
         saveToFile();
@@ -24,6 +38,14 @@ public class MediaLibrary {
         return mediaList;
     }
 
+    /**
+     * Serializes the current collection list states out into the plain-text storage file.
+     * This method utilizes a {@link PrintWriter} stream loop to construct row strings.
+     * It maps standard core configurations (ID, Title, Genre, Year, Image, Plot) first,
+     * uses runtime pattern-matching via {@code instanceof} to fetch specialized properties unique
+     * to individual subclasses (Film, Book, Music, Serial), and appends user state tracking metrics
+     * before flushing rows to the disk.
+     */
     public static void saveToFile() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(DATA_FILE))) {
             for (Media m : mediaList) {
@@ -55,6 +77,13 @@ public class MediaLibrary {
         }
     }
 
+    /**
+     * Deserializes local text records from the storage file back into structural memory.
+     * Checks if the target data file exists, clears any stale cache references within
+     * the collection array, and reads lines sequentially using a {@link BufferedReader}.
+     * Splitting columns by index segments allows a switch case control block to inject
+     * fields into precise child objects, assign timestamps, and populate the active library grid.
+     */
     public static void loadFromFile() {
         File file = new File(DATA_FILE);
         if (!file.exists()) {
@@ -118,7 +147,6 @@ public class MediaLibrary {
                         lastSpecIndex = 10;
                         break;
                 }
-
 
                 if (loadedMedia != null && parts.length > lastSpecIndex + 3) {
                     loadedMedia.setRating(Integer.parseInt(parts[lastSpecIndex + 1]));
