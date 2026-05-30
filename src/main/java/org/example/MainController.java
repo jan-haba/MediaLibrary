@@ -81,13 +81,20 @@ public class MainController {
             card.setSpacing(8);
             card.setStyle("-fx-alignment: center; -fx-cursor: hand;");
 
+
             javafx.scene.layout.StackPane imageContainer = new javafx.scene.layout.StackPane();
-            imageContainer.setStyle("-fx-alignment: top-right;");
+
+
+            imageContainer.setPrefSize(130, 180);
+            imageContainer.setMinSize(130, 180);
+            imageContainer.setMaxSize(130, 180);
+            imageContainer.setStyle("-fx-alignment: center; -fx-background-color: transparent;");
 
             ImageView imageView = new ImageView();
             imageView.setFitWidth(130);
             imageView.setFitHeight(180);
-            imageView.setPreserveRatio(false);
+
+            imageView.setPreserveRatio(true);
             imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 4);");
 
             String url = item.getImageUrl();
@@ -95,7 +102,7 @@ public class MainController {
                 url = "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=150&auto=format&fit=crop&q=60";
             }
 
-            Image img = new Image(url, 130, 180, false, true, true);
+            Image img = new Image(url, 130, 180, true, true, true);
             imageView.setImage(img);
 
             imageContainer.getChildren().add(imageView);
@@ -108,10 +115,11 @@ public class MainController {
                                 "-fx-font-weight: bold;" +
                                 "-fx-font-size: 10px;" +
                                 "-fx-padding: 3 7 3 7;" +
-                                "-fx-background-radius: 0 0 0 10;" + // Round only the inner bottom corner
+                                "-fx-background-radius: 0 0 0 10;" +
                                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 4, 0, 0, 0);"
                 );
 
+                javafx.scene.layout.StackPane.setAlignment(favTag, javafx.geometry.Pos.TOP_RIGHT);
                 imageContainer.getChildren().add(favTag);
             }
 
