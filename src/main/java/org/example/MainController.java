@@ -82,9 +82,9 @@ public class MainController {
     }
 
     /**
-     * 🔥 CENTRÁLNÍ FILTRAČNÍ LOGIKA
-     * Spustí se pokaždé, když uživatel napíše znak nebo změní výběr v ComboBoxu.
-     * Spojuje textové vyhledávání a polymorfní typovou filtraci.
+     * CENTRAL FILTERING LOGIC
+     * Triggers every time the user types a character or changes the selection in the ComboBox.
+     * Combines text-based search with polymorphic type filtering.
      */
     @FXML
     void onFilterChange() {
@@ -97,7 +97,8 @@ public class MainController {
                 .filter(item -> {
                     boolean matchesText = searchText.isEmpty() ||
                             item.getTitle().toLowerCase().contains(searchText) ||
-                            item.getGenre().toLowerCase().contains(searchText);
+                            item.getGenre().toLowerCase().contains(searchText) ||
+                            String.valueOf(item.getYear()).contains(searchText);
 
                     boolean matchesType = false;
                     if (selectedType.contains("ALL MEDIA")) {

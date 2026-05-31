@@ -16,32 +16,32 @@
 
         <VBox layoutX="320.0" layoutY="30.0" prefHeight="190.0" spacing="10.0" AnchorPane.leftAnchor="320.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="30.0">
             <children>
-                <Label fx:id="titleLabel" text="Název Media" textFill="WHITE" wrapText="true">
+                <Label fx:id="titleLabel" text="Media name" textFill="WHITE" wrapText="true">
                     <font>
                         <Font name="System Bold" size="24.0" />
                     </font>
                 </Label>
-                <Label fx:id="typeLabel" text="TYP: FILM" textFill="#4361ee">
+                <Label fx:id="typeLabel" text="TYPE: FILM" textFill="#4361ee">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Label>
-                <Label fx:id="authorLabel" text="Autor / Režisér" textFill="#dddddd">
+                <Label fx:id="authorLabel" text="Author / Director" textFill="#dddddd">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Label fx:id="genreLabel" text="Žánr" textFill="#dddddd">
+                <Label fx:id="genreLabel" text="Genre" textFill="#dddddd">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Label fx:id="yearLabel" text="Rok vydání" textFill="#dddddd">
+                <Label fx:id="yearLabel" text="Year" textFill="#dddddd">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Label fx:id="extraLabel" text="Doplňující info" textFill="#dddddd">
+                <Label fx:id="extraLabel" text="Additional info" textFill="#dddddd">
                     <font>
                         <Font size="14.0" />
                     </font>
@@ -61,13 +61,13 @@
             </children>
         </VBox>
 
-                    <Label layoutX="320.0" layoutY="271.0" text="Description:" textFill="#aaaaaa" AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="271.0">
+        <Label layoutX="320.0" layoutY="271.0" text="Description:" textFill="#aaaaaa" AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="271.0">
             <font>
                 <Font name="System Bold" size="14.0" />
             </font>
         </Label>
         <TextArea fx:id="descriptionArea" editable="false" layoutX="320.0" layoutY="291.0" prefHeight="195.0" style="-fx-control-inner-background: #2a2a2a; -fx-text-fill: white;" wrapText="true" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="320.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="291.0" />
 
-                                    <Button fx:id="deleteButton" layoutX="6.0" layoutY="457.0" mnemonicParsing="false" style="-fx-background-radius: 15; -fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 5 12 5 12;" text="🗑️ Delete Item" />
+        <Button fx:id="deleteButton" layoutX="6.0" layoutY="457.0" mnemonicParsing="false" style="-fx-background-radius: 15; -fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 5 12 5 12;" text="🗑️ Delete Item" />
     </children>
 </AnchorPane>
