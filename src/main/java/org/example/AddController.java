@@ -126,7 +126,7 @@ public class AddController {
                 System.out.println("✅ DATA RECEIVED: Book API returned a valid object!");
                 cleanTitle = apiData.optString("title", cleanTitle);
                 description = apiData.optString("description", description);
-                pageCount = apiData.optInt("pageCount", pageCount);
+                pageCount = apiData.optInt("pageCount", 250);
                 publisher = apiData.optString("publisher", publisher);
                 imageUrl = apiData.optString("imageUrl", imageUrl);
                 year = parseYear(apiData.optString("publishedDate", "2026"));
@@ -141,6 +141,9 @@ public class AddController {
                     isbn = apiData.getJSONArray("industryIdentifiers").getJSONObject(0).optString("identifier", isbn);
                 }
             } else {
+                if (cleanTitle.contains(" by ")) {
+                    cleanTitle = cleanTitle.split(" by ")[0].trim();
+                }
                 System.out.println("❌ DATA NOT RECEIVED: Using default fallback values.");
             }
             newMediaItem = new Book(newId, cleanTitle, genre, year, imageUrl, description, author, pageCount, publisher, isbn);
@@ -182,22 +185,22 @@ public class AddController {
         }
 
         else if (selectedType.contains("MUSIC")) {
-            System.out.println("🔍 MUSIC SEARCH - Sending full title to API: " + cleanTitle);
+            System.out.println("🔍 MUSIC ALBUM SEARCH - Sending full title to API: " + cleanTitle);
 
             JSONObject musicData = ApiService.fetchMusic(cleanTitle);
 
             String artist = "Various Artists";
             String recordLabel = "Record Label";
             int totalTracks = 10;
-            int durationSeconds = 2400;
+            int durationSeconds = 2700;
             MusicType releaseType = MusicType.ALBUM;
 
             if (musicData != null) {
-                System.out.println("✅ DATA RECEIVED: iTunes API returned a valid music object!");
+                System.out.println("✅ DATA RECEIVED: iTunes API returned a valid music album object!");
                 cleanTitle = musicData.optString("title", cleanTitle);
                 artist = musicData.optString("artist", artist);
                 genre = musicData.optString("genre", genre);
-                year = musicData.optInt("year", 2026);
+                year = musicData.optInt("year", 2026); // Safe matching with the updated ApiService integer map
                 description = musicData.optString("description", description);
                 recordLabel = musicData.optString("publisher", recordLabel);
                 totalTracks = musicData.optInt("totalTracks", totalTracks);
@@ -209,6 +212,8 @@ public class AddController {
                 } catch (IllegalArgumentException e) {
                     releaseType = MusicType.ALBUM;
                 }
+            } else {
+                System.out.println("❌ DATA NOT RECEIVED: Using default album fallback configurations.");
             }
 
             newMediaItem = new Music(newId, cleanTitle, genre, year, imageUrl, description, artist, recordLabel, totalTracks, durationSeconds, releaseType);
