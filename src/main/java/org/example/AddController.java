@@ -94,7 +94,8 @@ public class AddController {
         Media newMediaItem = null;
 
         if (selectedType.contains("FILM")) {
-            JSONObject apiData = ApiService.fetchMovieOrSeries(cleanTitle);
+            System.out.println("🔍 MOVIE SEARCH - Sending sanitized title to OMDb: " + cleanTitle);
+            JSONObject apiData = ApiService.fetchMovieOrSeries(cleanTitle, "movie");
 
             String director = "Unknown Director";
             int duration = 120;
@@ -112,7 +113,7 @@ public class AddController {
         }
 
         else if (selectedType.contains("BOOK")) {
-            System.out.println("🔍 VYHLEDÁVÁNÍ KNIHY - Posílám do API plný název: " + cleanTitle);
+            System.out.println("🔍 BOOK SEARCH - Sending full title to API: " + cleanTitle);
 
             JSONObject apiData = ApiService.fetchBook(cleanTitle);
 
@@ -122,7 +123,7 @@ public class AddController {
             String isbn = "000-00-000";
 
             if (apiData != null) {
-                System.out.println("✅ DATA DORAZILA: Knižní API vrátilo platný objekt!");
+                System.out.println("✅ DATA RECEIVED: Book API returned a valid object!");
                 cleanTitle = apiData.optString("title", cleanTitle);
                 description = apiData.optString("description", description);
                 pageCount = apiData.optInt("pageCount", pageCount);
@@ -140,16 +141,17 @@ public class AddController {
                     isbn = apiData.getJSONArray("industryIdentifiers").getJSONObject(0).optString("identifier", isbn);
                 }
             } else {
-                System.out.println("❌ DATA NEDORAZILA: Používám výchozí hodnoty.");
+                System.out.println("❌ DATA NOT RECEIVED: Using default fallback values.");
             }
             newMediaItem = new Book(newId, cleanTitle, genre, year, imageUrl, description, author, pageCount, publisher, isbn);
         }
 
         else if (selectedType.contains("SERIES")) {
-            JSONObject apiData = ApiService.fetchMovieOrSeries(cleanTitle);
+            System.out.println("🔍 SERIES SEARCH - Sending sanitized title to OMDb: " + cleanTitle);
+            JSONObject apiData = ApiService.fetchMovieOrSeries(cleanTitle, "series");
 
             int totalSeasons = 1;
-            int totalEpisodes = 12;
+            int totalEpisodes = 0;
 
             if (apiData != null) {
                 cleanTitle = apiData.optString("Title", cleanTitle);
@@ -158,15 +160,29 @@ public class AddController {
                 imageUrl = apiData.optString("Poster", imageUrl);
                 description = apiData.optString("Plot", description);
                 totalSeasons = parseInteger(apiData.optString("totalSeasons", "1"));
-                System.out.println("🔍 Querying sub-seasons to calculate exact episode count for: " + cleanTitle);
+
+
+                System.out.println("🔍 Seasons detected: " + totalSeasons + ". Iterating through all seasons for precise episode count...");
+
+                for (int i = 1; i <= totalSeasons; i++) {
+                    int episodesInSeason = ApiService.fetchEpisodeCountForSeason(cleanTitle, i);
+                    totalEpisodes += episodesInSeason;
+                }
+
+                System.out.println("✅ Calculation complete! Total verified episode count is: " + totalEpisodes);
+
+                if (totalEpisodes == 0) {
+                    totalEpisodes = totalSeasons * 10;
+                }
             } else {
                 totalEpisodes = 12;
             }
+
             newMediaItem = new Serial(newId, cleanTitle, genre, year, imageUrl, description, "Showrunner", totalSeasons, totalEpisodes, "Active");
         }
 
         else if (selectedType.contains("MUSIC")) {
-            System.out.println("🔍 VYHLEDÁVÁNÍ HUDBY - Posílám do API plný název: " + cleanTitle);
+            System.out.println("🔍 MUSIC SEARCH - Sending full title to API: " + cleanTitle);
 
             JSONObject musicData = ApiService.fetchMusic(cleanTitle);
 
@@ -177,7 +193,7 @@ public class AddController {
             MusicType releaseType = MusicType.ALBUM;
 
             if (musicData != null) {
-                System.out.println("✅ DATA DORAZILA: iTunes API vrátilo hudební objekt!");
+                System.out.println("✅ DATA RECEIVED: iTunes API returned a valid music object!");
                 cleanTitle = musicData.optString("title", cleanTitle);
                 artist = musicData.optString("artist", artist);
                 genre = musicData.optString("genre", genre);

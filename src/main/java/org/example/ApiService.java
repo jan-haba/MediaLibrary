@@ -20,9 +20,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class ApiService {
 
-
     private static final String OMDB_API_KEY = "d94efde7";
-    private static final String GEMINI_API_KEY = "AIzaSyD61-BVLy0YVPoDSRCGmY7Q7Swpogjc9HY";
+    private static final String GEMINI_API_KEY = "AQ.Ab8RN6JCYP2V8DK5usbGydIAXKaAkLNoVz4M7jl9Kd186-8DQA";
     private static final String GOOGLE_BOOKS_API_KEY = "AIzaSyBVcwS2HWpczMQjP-DGyrgIfdmKIYJxM4Y";
 
     /**
@@ -50,7 +49,10 @@ public class ApiService {
             conn.setRequestProperty("Content-Type", "application/json; utf-8");
             conn.setDoOutput(true);
 
-            String prompt = "You are a media database assistant. Clean up typos and output ONLY the official, exact English title of this movie, book, or show. Do not include quotes, periods, explanation text, or greetings. Input text: " + inputTitle;
+            String prompt = "You are an expert media database assistant. Clean up typos and output ONLY the official, exact canonical English title of this movie, book, or show. " +
+                    "Crucially, if the item has different British and American titles, ALWAYS output the official US release title (e.g., return 'Harry Potter and the Sorcerer's Stone' instead of 'Philosopher's Stone'). " +
+                    "Do not include quotes, periods, explanation text, or greetings. Input text: " + inputTitle;
+
             String jsonPayload = "{\"contents\": [{\"parts\":[{\"text\":\"" + prompt + "\"}]}]}";
 
             try (OutputStream os = conn.getOutputStream()) {
@@ -75,6 +77,7 @@ public class ApiService {
                         .getJSONArray("parts")
                         .getJSONObject(0)
                         .getString("text").trim();
+
                 aiTitle = aiTitle.replace("\"", "");
                 if (aiTitle.endsWith(".")) {
                     aiTitle = aiTitle.substring(0, aiTitle.length() - 1).trim();
@@ -83,7 +86,7 @@ public class ApiService {
                 System.out.println("🤖 Gemini AI Cleanup: '" + inputTitle + "' ➔ '" + aiTitle + "'");
                 return aiTitle;
             } else {
-                System.out.println("⚠️ Gemini API returned HTTP error code: " + status);
+                System.out.println("⚠️ Gemini API returned HTTP error code: " + status + ". Using raw title fallback.");
             }
         } catch (Exception e) {
             System.out.println("⚠️ Gemini AI Connection failed: " + e.getMessage());
@@ -102,10 +105,11 @@ public class ApiService {
      * @param title the normalized exact title string criteria of the cinematic item being sought
      * @return a {@link JSONObject} mapping response attributes (Artwork URL, Plot, Year, Cast), or {@code null} if mapping fails
      */
-    public static JSONObject fetchMovieOrSeries(String title) {
+    public static JSONObject fetchMovieOrSeries(String title, String mediaType) {
         try {
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
-            String urlString = "https://www.omdbapi.com/?apikey=" + OMDB_API_KEY + "&t=" + encodedTitle;
+
+            String urlString = "https://www.omdbapi.com/?apikey=" + OMDB_API_KEY + "&t=" + encodedTitle + "&type=" + mediaType;
 
             String response = makeHttpRequest(urlString);
             if (response != null) {
@@ -133,12 +137,19 @@ public class ApiService {
      */
     public static JSONObject fetchBook(String title) {
         try {
-            String query = "intitle:\"" + title + "\"";
-            String encodedTitle = URLEncoder.encode(query, StandardCharsets.UTF_8);
+            String query;
+            if (title.contains(" ")) {
+                String firstWord = title.substring(0, title.indexOf(" "));
+                String remainingText = title.substring(title.indexOf(" ") + 1);
+                query = "intitle:" + firstWord + " " + remainingText;
+            } else {
+                query = "intitle:" + title;
+            }
 
+            String encodedTitle = URLEncoder.encode(query, StandardCharsets.UTF_8);
             String urlString = "https://www.googleapis.com/books/v1/volumes?q=" + encodedTitle + "&maxResults=1&printType=books&orderBy=relevance&key=" + GOOGLE_BOOKS_API_KEY;
 
-            System.out.println("🌐 Odesílám URL na Google Books (striktní intitle): " + urlString);
+            System.out.println("🌐 Sending stable URL request to Google Books: " + urlString);
 
             String response = makeHttpRequest(urlString);
             if (response != null) {
@@ -205,7 +216,6 @@ public class ApiService {
                     JSONObject rawMusic = json.getJSONArray("results").getJSONObject(0);
                     JSONObject parsedMusic = new JSONObject();
 
-
                     String songTitle = rawMusic.optString("trackName", "");
                     String albumTitle = rawMusic.optString("collectionName", "");
 
@@ -224,7 +234,6 @@ public class ApiService {
 
                     parsedMusic.put("totalTracks", rawMusic.optInt("trackCount", 1));
                     parsedMusic.put("durationSeconds", rawMusic.optInt("trackTimeMillis", 240000) / 1000);
-
 
                     String kind = rawMusic.optString("kind", "");
                     int tracks = rawMusic.optInt("trackCount", 1);
@@ -285,5 +294,37 @@ public class ApiService {
         }
         conn.disconnect();
         return null;
+    }
+
+    /**
+     * Queries the OMDb registry for a specific season of a television series to extract
+     * the exact number of episodes broadcasted within that validation cycle.
+     * <p>
+     * Encodes the query parameters into uniform UTF-8 text, appends the specific target
+     * season index array parameter, and parses the root "Episodes" structural JSON array
+     * length to compute runtime metadata statistics dynamically.
+     * </p>
+     *
+     * @param title  the normalized canonical title string of the television show to query
+     * @param season the incremental integer index of the specific season being scanned
+     * @return an integer indicating the total count of serialized episodes parsed inside
+     * the target season matrix, or {@code 0} if transport handshake fails or metadata is missing
+     */
+    public static int fetchEpisodeCountForSeason(String title, int season) {
+        try {
+            String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
+            String urlString = "https://www.omdbapi.com/?apikey=" + OMDB_API_KEY + "&t=" + encodedTitle + "&Season=" + season;
+
+            String response = makeHttpRequest(urlString);
+            if (response != null) {
+                JSONObject json = new JSONObject(response);
+                if (json.has("Episodes")) {
+                    return json.getJSONArray("Episodes").length();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Failed to load episodes for season " + season + ": " + e.getMessage());
+        }
+        return 0;
     }
 }

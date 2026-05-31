@@ -52,7 +52,7 @@ public class StatsController {
      */
     @FXML
     public void initialize() {
-        System.out.println("📊 Generuji vizuální grafy a statistiky knihovny...");
+        System.out.println("📊 Generating library metrics and data visualization charts...");
 
         List<Media> mediaList = MediaLibrary.getMediaList();
 
@@ -88,7 +88,7 @@ public class StatsController {
         }
 
         totalItemsLabel.setText(String.valueOf(totalItems));
-        totalPagesLabel.setText(String.format("%,d p.", totalPages));
+        totalPagesLabel.setText(String.format("%,d pages", totalPages));
         totalWatchTimeLabel.setText(String.format("%,d min", totalWatchTime));
 
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();

@@ -54,7 +54,7 @@ public class MainController {
      */
     @FXML
     public void initialize() {
-        System.out.println("🖼️ Inicializace hlavního menu s dlaždicemi plakátů...");
+        System.out.println("🖼️ Initializing main dashboard with poster matrix tiles...");
 
         mediaTilePane.prefWidthProperty().bind(scrollPane.widthProperty().subtract(25));
 
@@ -250,7 +250,7 @@ public class MainController {
 
             if (deleteButton != null) {
                 deleteButton.setOnAction(e -> {
-                    System.out.println("🗑️ Odstraňuji položku z knihovny: " + item.getTitle());
+                    System.out.println("🗑️ Removing item from media library: " + item.getTitle());
                     MediaLibrary.removeItem(item);
                     stage.close();
                     refreshGrid(MediaLibrary.getMediaList());
@@ -266,7 +266,7 @@ public class MainController {
             stage.show();
 
         } catch (IOException e) {
-            System.out.println("🚨 Chyba při otevírání detailního okna: " + e.getMessage());
+            System.out.println("🚨 Error encountered while launching detail layout modal: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -285,10 +285,10 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
 
-            System.out.println("🔄 Formulář zavřen, překresluji hlavní mřížku...");
+            System.out.println("🔄 Form closed, repopulating primary dashboard grid layout...");
             refreshGrid(MediaLibrary.getMediaList());
         } catch (IOException e) {
-            System.out.println("🚨 Nelze otevřít okno pro přidání: " + e.getMessage());
+            System.out.println("🚨 Unable to initialize interactive wizard frame context: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -307,7 +307,7 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (IOException e) {
-            System.out.println("🚨 Nelze otevřít okno statistik: " + e.getMessage());
+            System.out.println("🚨 Unable to target and open statistical data dashboard context: " + e.getMessage());
         }
     }
 }
