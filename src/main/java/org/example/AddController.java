@@ -200,7 +200,7 @@ public class AddController {
                 cleanTitle = musicData.optString("title", cleanTitle);
                 artist = musicData.optString("artist", artist);
                 genre = musicData.optString("genre", genre);
-                year = musicData.optInt("year", 2026); // Safe matching with the updated ApiService integer map
+                year = musicData.optInt("year", 2026);
                 description = musicData.optString("description", description);
                 recordLabel = musicData.optString("publisher", recordLabel);
                 totalTracks = musicData.optInt("totalTracks", totalTracks);

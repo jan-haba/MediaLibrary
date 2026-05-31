@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 public class ApiService {
 
     private static final String OMDB_API_KEY = "d94efde7";
-    private static final String GEMINI_API_KEY = "AQ.Ab8RN6Ij4McIipVbciSK-77Xywadwc8y1Cbt0De6BtQn_sgmpA";
-    private static final String GOOGLE_BOOKS_API_KEY = "AIzaSyBVcwS2HWpczMQjP-DGyrgIfdmKIYJxM4Y";
+    private static final String GEMINI_API_KEY = "";
+    private static final String GOOGLE_BOOKS_API_KEY = "";
 
     /**
      * Sanitizes unstructured text inputs by processing them through Google's Gemini Generative AI model.
@@ -158,7 +158,6 @@ public class ApiService {
             }
 
             String encodedTitle = URLEncoder.encode(query, StandardCharsets.UTF_8);
-            // 🔥 ZMĚNA: Zvedneme maxResults na 3, abychom měli z čeho dynamicky vybírat
             String urlString = "https://www.googleapis.com/books/v1/volumes?q=" + encodedTitle + "&maxResults=3&printType=books&key=" + GOOGLE_BOOKS_API_KEY;
 
             System.out.println("🌐 Sending stable URL request to Google Books (Smart Validation): " + urlString);
@@ -169,16 +168,13 @@ public class ApiService {
                 if (json.has("items") && !json.getJSONArray("items").isEmpty()) {
                     JSONArray items = json.getJSONArray("items");
 
-                    // Výchozí volba bude první prvek
                     JSONObject volumeInfo = items.getJSONObject(0).getJSONObject("volumeInfo");
 
-                    // 🔥 1. DYNAMICKÝ VÝBĚR KNIHY: Projdeme kandidáty a hledáme ten s nejlepším popisem a rozumným počtem stran
                     for (int i = 0; i < items.length(); i++) {
                         JSONObject candidateInfo = items.getJSONObject(i).getJSONObject("volumeInfo");
                         int pages = candidateInfo.optInt("pageCount", 0);
                         String desc = candidateInfo.optString("description", "");
 
-                        // Pokud má kniha aspoň 80 stránek a delší popisek než 30 znaků, je to náš vítěz (skutečný román)
                         if (pages > 80 && desc.length() > 30) {
                             volumeInfo = candidateInfo;
                             break;
@@ -193,8 +189,7 @@ public class ApiService {
                     parsedBook.put("publisher", volumeInfo.optString("publisher", "Global Publisher"));
                     parsedBook.put("publishedDate", volumeInfo.optString("publishedDate", "2026"));
 
-                    // 🔥 2. DYNAMICKÁ OPRAVA ŽÁNRU (Ochrana proti postavám a autorům v žánru)
-                    String detectedGenre = "Literature & Fiction"; // Výchozí bezpečný žánr
+                    String detectedGenre = "Literature & Fiction";
 
                     if (volumeInfo.has("categories") && !volumeInfo.getJSONArray("categories").isEmpty()) {
                         String rawGenre = volumeInfo.getJSONArray("categories").getString(0);
@@ -202,7 +197,6 @@ public class ApiService {
                         String titleLower = finalTitle.toLowerCase();
                         String authorLower = cleanAuthorOnly.toLowerCase();
 
-                        // Ochrana: Pokud žánr obsahuje jméno autora, slovo z názvu knihy, nebo jména běžných postav
                         if (rawGenreLower.contains(authorLower) && !authorLower.isEmpty() ||
                                 titleLower.contains(rawGenreLower) ||
                                 rawGenreLower.contains("potter") ||
@@ -210,10 +204,9 @@ public class ApiService {
                                 rawGenreLower.contains("frodo") ||
                                 rawGenreLower.contains("character")) {
 
-                            // Pokud detekujeme, že Google vrací nesmysly, dosadíme čistý žánr
                             detectedGenre = "Literature & Fiction";
                         } else {
-                            detectedGenre = rawGenre; // Žánr je v pořádku, schválíme ho
+                            detectedGenre = rawGenre;
                         }
                     }
 
@@ -255,10 +248,8 @@ public class ApiService {
 
     /**
      * Queries the public Apple iTunes Search API to retrieve structural metadata for main musical albums.
-     * <p>
-     * Executes a strict lookup targeting album entities matching only the primary album title term.
-     * Iterates through top results to clean and filter out remix compilations, EPs, and live bootlegs.
-     * </p>
+     * Enforces strict album validation matching constraints to prioritize the album title over the artist's name.
+     * Dynamically verifies track counts and artist names to filter out singles, EPs, and unrelated band names.
      *
      * @param title the cleaned album title name query sequence parsed to discover matching musical assets
      * @return a mapped {@link JSONObject} containing music album fields, or {@code null} if unavailable
@@ -267,32 +258,60 @@ public class ApiService {
         try {
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
 
-            String urlString = "https://itunes.apple.com/search?term=" + encodedTitle + "&media=music&entity=album&attribute=albumTerm&limit=5";
-
+            String urlString = "https://itunes.apple.com/search?term=" + encodedTitle + "&media=music&entity=album&attribute=albumTerm&limit=10";
             String response = makeHttpRequest(urlString);
+
+
+            if (response == null || !new JSONObject(response).has("results") || new JSONObject(response).getJSONArray("results").isEmpty()) {
+                System.out.println("ℹ️ Primary lookup yielded zero results. Retrying with focused album-term constraint...");
+                urlString = "https://itunes.apple.com/search?term=" + encodedTitle + "&media=music&entity=album&attribute=albumTerm&limit=10";
+                response = makeHttpRequest(urlString);
+            }
+
             if (response != null) {
                 JSONObject json = new JSONObject(response);
                 if (json.has("results") && !json.getJSONArray("results").isEmpty()) {
                     JSONArray results = json.getJSONArray("results");
-                    JSONObject rawMusic = results.getJSONObject(0);
+
+                    JSONObject rawMusic = null;
+                    String lowerTitle = title.toLowerCase();
 
                     for (int i = 0; i < results.length(); i++) {
                         JSONObject potentialAlbum = results.getJSONObject(i);
                         String currentCollectionName = potentialAlbum.optString("collectionName", "").toLowerCase();
+                        String currentArtistName = potentialAlbum.optString("artistName", "").toLowerCase();
+                        int trackCount = potentialAlbum.optInt("trackCount", 0);
 
-                        if (!currentCollectionName.contains("remix") &&
+                        if (trackCount > 5 &&
+                                !currentCollectionName.contains("remix") &&
+                                !currentCollectionName.contains("- single") &&
                                 !currentCollectionName.contains("b-sides") &&
-                                !currentCollectionName.contains("ep") &&
-                                !currentCollectionName.contains("live") &&
+                                !currentCollectionName.contains("- ep") &&
+                                !currentCollectionName.contains("live at") &&
                                 !currentCollectionName.contains("edition")) {
 
-                            rawMusic = potentialAlbum;
-                            break;
+
+                            if (lowerTitle.contains(currentArtistName) || rawMusic == null) {
+                                rawMusic = potentialAlbum;
+
+                                if (lowerTitle.contains(currentArtistName)) {
+                                    break;
+                                }
+                            }
                         }
+                    }
+
+                    if (rawMusic == null) {
+                        rawMusic = results.getJSONObject(0);
                     }
 
                     JSONObject parsedMusic = new JSONObject();
                     String albumTitle = rawMusic.optString("collectionName", title);
+
+                    if (albumTitle.toLowerCase().endsWith(" - album")) {
+                        albumTitle = albumTitle.substring(0, albumTitle.length() - 8).trim();
+                    }
+
                     parsedMusic.put("title", albumTitle);
                     parsedMusic.put("artist", rawMusic.optString("artistName", "Unknown Artist"));
                     parsedMusic.put("genre", rawMusic.optString("primaryGenreName", "Music"));
@@ -301,7 +320,7 @@ public class ApiService {
                     String releaseDate = rawMusic.optString("releaseDate", "2026");
                     parsedMusic.put("year", releaseDate.length() >= 4 ? Integer.parseInt(releaseDate.substring(0, 4)) : 2026);
 
-                    parsedMusic.put("totalTracks", rawMusic.optInt("trackCount", 10));
+                    parsedMusic.put("totalTracks", rawMusic.optInt("trackCount", 12));
                     parsedMusic.put("durationSeconds", 2700);
                     parsedMusic.put("releaseType", "ALBUM");
                     parsedMusic.put("description", "Studio Album release by " + parsedMusic.getString("artist"));

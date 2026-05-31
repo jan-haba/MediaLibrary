@@ -36,7 +36,7 @@
                                 <Font name="System Bold" size="12.0" />
                             </font>
                         </Label>
-                        <TextField fx:id="titleField" prefHeight="38.0" promptText="e.g. hARRY POTTER 1, Matrix, Inception..." style="-fx-background-color: #1e1e24; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 0 10 0 10;" />
+                        <TextField fx:id="titleField" prefHeight="38.0" promptText="e.g. harry potter 1, Matrix, Inception..." style="-fx-background-color: #1e1e24; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 0 10 0 10;" />
                     </children>
                 </VBox>
             </children>

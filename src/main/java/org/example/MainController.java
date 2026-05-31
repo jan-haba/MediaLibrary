@@ -47,6 +47,9 @@ public class MainController {
     @FXML
     private TilePane mediaTilePane;
 
+    @FXML
+    private ComboBox<String> filterTypeComboBox;
+
     /**
      * Initializes the dashboard environment configuration values instantly after layout resource bindings resolve.
      * Binds resizable dimension subtraction listeners to automatically calculate content column wrapping margins
@@ -58,11 +61,62 @@ public class MainController {
 
         mediaTilePane.prefWidthProperty().bind(scrollPane.widthProperty().subtract(25));
 
-        refreshGrid(MediaLibrary.getMediaList());
+        if (filterTypeComboBox != null) {
+            filterTypeComboBox.setItems(FXCollections.observableArrayList(
+                    "🌍 ALL MEDIA",
+                    "🎬 FILM",
+                    "📚 BOOK",
+                    "📺 SERIES",
+                    "🎵 MUSIC"
+            ));
+            filterTypeComboBox.setValue("🌍 ALL MEDIA");
+        }
 
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterMedia(newValue);
-        });
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                onFilterChange();
+            });
+        }
+
+        onFilterChange();
+    }
+
+    /**
+     * 🔥 CENTRÁLNÍ FILTRAČNÍ LOGIKA
+     * Spustí se pokaždé, když uživatel napíše znak nebo změní výběr v ComboBoxu.
+     * Spojuje textové vyhledávání a polymorfní typovou filtraci.
+     */
+    @FXML
+    void onFilterChange() {
+        if (mediaTilePane == null) return;
+
+        String searchText = (searchField != null) ? searchField.getText().toLowerCase().trim() : "";
+        String selectedType = (filterTypeComboBox != null) ? filterTypeComboBox.getValue() : "🌍 ALL MEDIA";
+
+        List<Media> filteredItems = MediaLibrary.getMediaList().stream()
+                .filter(item -> {
+                    boolean matchesText = searchText.isEmpty() ||
+                            item.getTitle().toLowerCase().contains(searchText) ||
+                            item.getGenre().toLowerCase().contains(searchText);
+
+                    boolean matchesType = false;
+                    if (selectedType.contains("ALL MEDIA")) {
+                        matchesType = true;
+                    } else if (selectedType.contains("FILM") && item instanceof Film) {
+                        matchesType = true;
+                    } else if (selectedType.contains("BOOK") && item instanceof Book) {
+                        matchesType = true;
+                    } else if (selectedType.contains("SERIES") && item instanceof Serial) {
+                        matchesType = true;
+                    } else if (selectedType.contains("MUSIC") && item instanceof Music) {
+                        matchesType = true;
+                    }
+
+                    return matchesText && matchesType;
+                })
+                .collect(Collectors.toList());
+
+        refreshGrid(filteredItems);
     }
 
     /**
@@ -139,27 +193,6 @@ public class MainController {
     }
 
     /**
-     * Screens out storage items failing to match lookahead strings typed inside the lookup input.
-     * Filters the global item stream comparing lower-case variants of media titles or genre classifications.
-     *
-     * @param query the textual search term parsed to restrict displayed catalog cards
-     */
-    private void filterMedia(String query) {
-        if (query == null || query.isEmpty()) {
-            refreshGrid(MediaLibrary.getMediaList());
-            return;
-        }
-
-        String lowerQuery = query.toLowerCase();
-        List<Media> filtered = MediaLibrary.getMediaList().stream()
-                .filter(m -> m.getTitle().toLowerCase().contains(lowerQuery) ||
-                        m.getGenre().toLowerCase().contains(lowerQuery))
-                .collect(Collectors.toList());
-
-        refreshGrid(filtered);
-    }
-
-    /**
      * Builds and launches the standalone focused view presentation window displaying deep asset attributes.
      * Resolves structural UI mappings via reflection lookup injections. Evaluates data classifications using
      * explicit inheritance instance routing, maps rating configurations, and provides interactive callback closures
@@ -232,7 +265,7 @@ public class MainController {
                     favoriteButton.setStyle("-fx-background-color: #ff4757; -fx-text-fill: white; -fx-background-radius: 15; -fx-font-weight: bold;");
                 }
                 MediaLibrary.saveToFile();
-                refreshGrid(MediaLibrary.getMediaList());
+                onFilterChange();
             });
 
             ratingComboBox.setItems(FXCollections.observableArrayList(
@@ -253,7 +286,7 @@ public class MainController {
                     System.out.println("🗑️ Removing item from media library: " + item.getTitle());
                     MediaLibrary.removeItem(item);
                     stage.close();
-                    refreshGrid(MediaLibrary.getMediaList());
+                    onFilterChange();
                 });
             }
 
@@ -286,7 +319,7 @@ public class MainController {
             stage.showAndWait();
 
             System.out.println("🔄 Form closed, repopulating primary dashboard grid layout...");
-            refreshGrid(MediaLibrary.getMediaList());
+            onFilterChange();
         } catch (IOException e) {
             System.out.println("🚨 Unable to initialize interactive wizard frame context: " + e.getMessage());
             e.printStackTrace();
