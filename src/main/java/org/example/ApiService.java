@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class ApiService {
 
-    private static final String OMDB_API_KEY = "d94efde7";
+    private static final String OMDB_API_KEY = "";
     private static final String GEMINI_API_KEY = "";
     private static final String GOOGLE_BOOKS_API_KEY = "";
 
