@@ -4,7 +4,7 @@
 
 Smart Media Library is a responsive desktop simulation application built in Java 25 (JavaFX) where users run their own personalized cultural database. Through a clean, dark-themed user interface, users manage books, movies, series, and music, all while the underlying code actively demonstrates core Object-Oriented Programming principles and advanced cloud AI integrations.
 
-<center>[![Java Version](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)</center>
+[![Java Version](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
 ---
 
 ## ✨ Key Features & Mechanics
