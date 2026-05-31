@@ -20,6 +20,18 @@ Smart Media Library is a responsive desktop simulation application built in Java
 
 ---
 
+### 🚀 Adding New Media (Smart AI / API Assistant)
+The application features an automated system that fetches media metadata and cover art directly from the internet. When adding a new item, the user can proceed in two ways:
+
+1. **Smart (Automated) Mode:**
+   * The user selects the media type (e.g., MOVIE) and types a **keyword or title** into the search field (e.g., *Inception* or *Harry Potter*).
+   * The system automatically queries an external API to retrieve the official poster URL, correct genre, release year, and a brief description.
+
+2. **Fallback (Manual) Mode (Offline/Error Handling):**
+   * **What happens if the internet goes down or the API fails?** The application is built with defensive programming principles and will not crash.
+   * If the automated search yields no results (due to a typo or being offline), the user can **manually enter the exact title and details** into the form.
+   * If a custom poster image cannot be found, the application automatically applies a beautiful, neutral fallback image from Unsplash. This ensures the visual grid remains consistent and the application stays fully functional offline.
+---
 ## ⚙️ Installation & Setup
 
 ### Prerequisites
